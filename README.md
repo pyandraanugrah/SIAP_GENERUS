@@ -1,17 +1,69 @@
-# siap_generus
+# SIAP-GENERUS Mobile Application
 
-A new Flutter project.
+Aplikasi administrasi dan pembinaan generus berbasis Flutter (Android/Multiplatform) dengan data dummy lokal interaktif.
 
-## Getting Started
+## Fitur Utama
 
-This project is a starting point for a Flutter application.
+- **Login Demo:** Autentikasi simulasi lokal dengan palet hijau brand.
+- **Beranda (Dashboard):** Statistik ringkasan (Total Generus, Kelas Aktif, Rata-rata Kehadiran) dan shortcut modul.
+- **Materi:** Kurikulum Tilawah, Hafalan, Doa, dan Pegon dengan pencarian serta filter kategori.
+- **Pertemuan:** Jadwal kegiatan (Akan Datang / Selesai), filter, dan pembuatan jadwal baru.
+- **Laporan:** Pusat rekapitulasi data generus, kelas, presensi, materi, progres, dan pembinaan.
+- **Profil:** Capaian belajar pelajar (Tilawah, Hafalan, Doa, Pegon) serta pengaturan profil & logout demo.
+- **Modul Tambahan:** Manajemen Generus, Pengajar, Kelas jenjang PAUD-SMA, Presensi/Absensi interaktif, Catatan Pembinaan, dan Data Prestasi.
 
-A few resources to get you started if this is your first Flutter project:
+---
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+## Kredensial Demo
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+| Field | Nilai |
+|---|---|
+| **Email** | `demo@siapgenerus.app` |
+| **Password** | `Generus123!` |
+
+---
+
+## Prasyarat
+
+- Flutter SDK `^3.13` atau lebih baru
+- Dart SDK `^3.0`
+- Android Studio / VS Code dengan Flutter extension
+- Emulator Android, Chrome, atau perangkat fisik
+
+---
+
+## Cara Menjalankan
+
+1. **Clone repository:**
+   ```bash
+   git clone <URL_REPO_GITHUB>
+   cd siap_generus
+   ```
+
+2. **Ambil dependencies:**
+   ```bash
+   flutter pub get
+   ```
+
+3. **Jalankan aplikasi:**
+   ```bash
+   flutter run
+   ```
+
+   Jalankan di target spesifik bila diperlukan:
+   ```bash
+   # Android emulator / device
+   flutter run -d android
+
+   # Web Chrome
+   flutter run -d chrome
+
+   # Windows desktop
+   flutter run -d windows
+   ```
+
+4. **Jalankan pengujian dan analisis kode:**
+   ```bash
+   flutter analyze
+   flutter test
+   ```
