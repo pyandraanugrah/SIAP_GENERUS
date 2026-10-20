@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+
 import '../../core/theme/app_colors.dart';
 import '../../data/dummy_data.dart';
+import '../../shared/widgets/default_avatar.dart';
 import '../auth/login_screen.dart';
 
 class ProfilScreen extends StatefulWidget {
@@ -32,76 +34,162 @@ class _ProfilScreenState extends State<ProfilScreen> {
   void _showSettingsModal() {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Pengaturan Akun Demo',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppColors.primaryText,
+      builder: (ctx) => SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Pengaturan Akun Demo',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.primaryText,
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            ListTile(
-              leading: const Icon(Icons.person_outline, color: AppColors.primaryGreen),
-              title: const Text('Edit Profil'),
-              subtitle: const Text('Perbarui nama dan info profil lokal'),
-              trailing: const Icon(Icons.chevron_right_rounded),
-              onTap: () {
-                Navigator.pop(ctx);
-                _showEditProfilDialog();
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.lock_reset_rounded, color: AppColors.primaryGreen),
-              title: const Text('Ubah Password'),
-              subtitle: const Text('Simulasi ganti password akun'),
-              trailing: const Icon(Icons.chevron_right_rounded),
-              onTap: () {
-                Navigator.pop(ctx);
-                _showChangePasswordDialog();
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.photo_camera_outlined, color: AppColors.primaryGreen),
-              title: const Text('Ganti Foto Profil'),
-              subtitle: const Text('Simulasi pemilihan avatar'),
-              trailing: const Icon(Icons.chevron_right_rounded),
-              onTap: () {
-                Navigator.pop(ctx);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Simulasi: Foto profil lokal diperbarui!'),
-                    behavior: SnackBarBehavior.floating,
+              const SizedBox(height: 16),
+              ListTile(
+                leading: const Icon(
+                  Icons.person_outline,
+                  color: AppColors.primaryGreen,
+                ),
+                title: const Text('Edit Profil'),
+                subtitle: const Text('Perbarui nama dan info profil lokal'),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _showEditProfilDialog();
+                },
+              ),
+              ListTile(
+                leading: const Icon(
+                  Icons.lock_reset_rounded,
+                  color: AppColors.primaryGreen,
+                ),
+                title: const Text('Ubah Password'),
+                subtitle: const Text('Simulasi ganti password akun'),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _showChangePasswordDialog();
+                },
+              ),
+              ListTile(
+                leading: const Icon(
+                  Icons.photo_camera_outlined,
+                  color: AppColors.primaryGreen,
+                ),
+                title: const Text('Ganti Foto Profil'),
+                subtitle: const Text('Simulasi pemilihan avatar'),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Simulasi: Foto profil lokal diperbarui!'),
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                },
+              ),
+              const Divider(),
+              ListTile(
+                leading: const Icon(
+                  Icons.logout_rounded,
+                  color: AppColors.badgeRed,
+                ),
+                title: const Text(
+                  'Logout Demo',
+                  style: TextStyle(
+                    color: AppColors.badgeRed,
+                    fontWeight: FontWeight.bold,
                   ),
-                );
-              },
-            ),
-            const Divider(),
-            ListTile(
-              leading: const Icon(Icons.logout_rounded, color: AppColors.badgeRed),
-              title: const Text('Logout Demo', style: TextStyle(color: AppColors.badgeRed, fontWeight: FontWeight.bold)),
-              subtitle: const Text('Kembali ke layar login demo'),
-              onTap: () {
-                Navigator.pop(ctx);
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (_) => const LoginScreen()),
-                  (route) => false,
-                );
-              },
-            ),
-          ],
+                ),
+                subtitle: const Text('Keluar dari sesi demo aplikasi'),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _handleLogout();
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  Future<void> _handleLogout() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Row(
+          children: [
+            Icon(Icons.logout_rounded, color: AppColors.badgeRed, size: 24),
+            SizedBox(width: 10),
+            Text(
+              'Konfirmasi Logout',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            ),
+          ],
+        ),
+        content: const Text(
+          'Apakah Anda yakin ingin keluar dari akun demo SIAP-GENERUS?',
+          style: TextStyle(color: AppColors.primaryText, fontSize: 14),
+        ),
+        actionsPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 12,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text(
+              'Batal',
+              style: TextStyle(
+                color: AppColors.secondaryText,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.badgeRed,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 0,
+            ),
+            child: const Text(
+              'Keluar',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      _dataStore.logout();
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        (route) => false,
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Berhasil keluar dari akun demo.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   void _showEditProfilDialog() {
@@ -112,15 +200,27 @@ class _ProfilScreenState extends State<ProfilScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Edit Profil Demo', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Edit Profil Demo',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(controller: nameCtrl, decoration: const InputDecoration(labelText: 'Nama Lengkap')),
+            TextField(
+              controller: nameCtrl,
+              decoration: const InputDecoration(labelText: 'Nama Lengkap'),
+            ),
             const SizedBox(height: 12),
-            TextField(controller: kelasCtrl, decoration: const InputDecoration(labelText: 'Kelas')),
+            TextField(
+              controller: kelasCtrl,
+              decoration: const InputDecoration(labelText: 'Kelas'),
+            ),
             const SizedBox(height: 12),
-            TextField(controller: nisnCtrl, decoration: const InputDecoration(labelText: 'NISN')),
+            TextField(
+              controller: nisnCtrl,
+              decoration: const InputDecoration(labelText: 'NISN'),
+            ),
           ],
         ),
         actions: [
@@ -137,7 +237,9 @@ class _ProfilScreenState extends State<ProfilScreen> {
               });
               Navigator.pop(ctx);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Profil berhasil diperbarui secara lokal!')),
+                const SnackBar(
+                  content: Text('Profil berhasil diperbarui secara lokal!'),
+                ),
               );
             },
             child: const Text('Simpan'),
@@ -159,12 +261,17 @@ class _ProfilScreenState extends State<ProfilScreen> {
           decoration: const InputDecoration(labelText: 'Password Baru'),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Batal')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Batal'),
+          ),
           ElevatedButton(
             onPressed: () {
               Navigator.pop(ctx);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Password berhasil disimulasikan!')),
+                const SnackBar(
+                  content: Text('Password berhasil disimulasikan!'),
+                ),
               );
             },
             child: const Text('Simpan'),
@@ -206,7 +313,9 @@ class _ProfilScreenState extends State<ProfilScreen> {
             value: percent / 100,
             minHeight: 8,
             backgroundColor: const Color(0xFFE5EDE8),
-            valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primaryGreen),
+            valueColor: const AlwaysStoppedAnimation<Color>(
+              AppColors.primaryGreen,
+            ),
           ),
         ),
         const SizedBox(height: 16),
@@ -235,20 +344,24 @@ class _ProfilScreenState extends State<ProfilScreen> {
 
                     // Profile Header Card (Green Gradient)
                     Padding(
-                      padding: const EdgeInsets.only(top: 64, left: 20, right: 20),
+                      padding: const EdgeInsets.only(
+                        top: 64,
+                        left: 20,
+                        right: 20,
+                      ),
                       child: Container(
                         padding: const EdgeInsets.all(18),
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
-                            colors: [
-                              Color(0xFF86BA93),
-                              Color(0xFF388E4A),
-                            ],
+                            colors: [Color(0xFF86BA93), Color(0xFF388E4A)],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
                           borderRadius: BorderRadius.circular(24),
-                          border: Border.all(color: const Color(0xFFD8AD43), width: 1.5),
+                          border: Border.all(
+                            color: const Color(0xFFD8AD43),
+                            width: 1.5,
+                          ),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withValues(alpha: 0.12),
@@ -260,26 +373,9 @@ class _ProfilScreenState extends State<ProfilScreen> {
                         child: Row(
                           children: [
                             // Student Avatar
-                            Container(
-                              width: 66,
-                              height: 66,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.white,
-                                border: Border.all(color: Colors.white, width: 2),
-                              ),
-                              child: ClipOval(
-                                child: Image.asset(
-                                  'references/Profil-Generus.png',
-                                  fit: BoxFit.none,
-                                  alignment: const Alignment(-0.64, -0.68),
-                                  errorBuilder: (context, error, stackTrace) => const Icon(
-                                    Icons.person,
-                                    color: AppColors.primaryGreen,
-                                    size: 40,
-                                  ),
-                                ),
-                              ),
+                            DefaultAvatar(
+                              size: 66,
+                              border: Border.all(color: Colors.white, width: 2),
                             ),
                             const SizedBox(width: 16),
                             // Details
@@ -364,10 +460,22 @@ class _ProfilScreenState extends State<ProfilScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildProgressRow('Tilawah Al-Qur\'an', _dataStore.tilawahProgress),
-                        _buildProgressRow('Hafalan Surat Pendek', _dataStore.hafalanProgress),
-                        _buildProgressRow('Doa-Doa Pilihan', _dataStore.doaProgress),
-                        _buildProgressRow('Aksara Pegon', _dataStore.pegonProgress),
+                        _buildProgressRow(
+                          'Tilawah Al-Qur\'an',
+                          _dataStore.tilawahProgress,
+                        ),
+                        _buildProgressRow(
+                          'Hafalan Surat Pendek',
+                          _dataStore.hafalanProgress,
+                        ),
+                        _buildProgressRow(
+                          'Doa-Doa Pilihan',
+                          _dataStore.doaProgress,
+                        ),
+                        _buildProgressRow(
+                          'Aksara Pegon',
+                          _dataStore.pegonProgress,
+                        ),
 
                         // Materi completion badge
                         Container(
@@ -402,7 +510,10 @@ class _ProfilScreenState extends State<ProfilScreen> {
                                 ],
                               ),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 6,
+                                ),
                                 decoration: BoxDecoration(
                                   color: AppColors.lightGreenBadge,
                                   borderRadius: BorderRadius.circular(12),

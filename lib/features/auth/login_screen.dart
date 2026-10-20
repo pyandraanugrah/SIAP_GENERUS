@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+
 import '../../core/theme/app_colors.dart';
+import '../../data/dummy_data.dart';
 import '../../shared/navigation/main_navigation_shell.dart';
+import '../../shared/widgets/app_logo.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -45,6 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     // Check credentials against PRD demo credentials
     if (email == 'demo@siapgenerus.app' && password == 'Generus123!') {
+      DummyDataStore.instance.login();
       setState(() {
         _isLoading = false;
       });
@@ -75,7 +79,10 @@ class _LoginScreenState extends State<LoginScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Tutup', style: TextStyle(color: AppColors.primaryGreen)),
+            child: const Text(
+              'Tutup',
+              style: TextStyle(color: AppColors.primaryGreen),
+            ),
           ),
         ],
       ),
@@ -137,28 +144,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 24),
 
                 // App Icon (green rounded square with book icon)
-                Container(
-                  width: 90,
-                  height: 90,
-                  decoration: BoxDecoration(
-                    color: AppColors.secondaryGreen,
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.secondaryGreen.withValues(alpha: 0.3),
-                        blurRadius: 16,
-                        offset: const Offset(0, 8),
-                      ),
-                    ],
-                  ),
-                  child: const Center(
-                    child: Icon(
-                      Icons.menu_book_rounded,
-                      size: 46,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
+                const AppLogo(),
                 const SizedBox(height: 20),
 
                 // Title & Subtitle
@@ -189,7 +175,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   decoration: BoxDecoration(
                     color: const Color(0xFFF5F8F6),
                     borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: const Color(0xFFE8EDE9), width: 1),
+                    border: Border.all(
+                      color: const Color(0xFFE8EDE9),
+                      width: 1,
+                    ),
                   ),
                   child: Column(
                     children: [
@@ -208,11 +197,15 @@ class _LoginScreenState extends State<LoginScreen> {
                           filled: true,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
-                            borderSide: const BorderSide(color: Color(0xFFE4E9E5)),
+                            borderSide: const BorderSide(
+                              color: Color(0xFFE4E9E5),
+                            ),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
-                            borderSide: const BorderSide(color: Color(0xFFE4E9E5)),
+                            borderSide: const BorderSide(
+                              color: Color(0xFFE4E9E5),
+                            ),
                           ),
                         ),
                         validator: (val) {
@@ -256,11 +249,15 @@ class _LoginScreenState extends State<LoginScreen> {
                           filled: true,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
-                            borderSide: const BorderSide(color: Color(0xFFE4E9E5)),
+                            borderSide: const BorderSide(
+                              color: Color(0xFFE4E9E5),
+                            ),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
-                            borderSide: const BorderSide(color: Color(0xFFE4E9E5)),
+                            borderSide: const BorderSide(
+                              color: Color(0xFFE4E9E5),
+                            ),
                           ),
                         ),
                         validator: (val) {
@@ -334,7 +331,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 // Divider 'atau'
                 Row(
                   children: [
-                    Expanded(child: Divider(color: Colors.grey.shade300, thickness: 1)),
+                    Expanded(
+                      child: Divider(color: Colors.grey.shade300, thickness: 1),
+                    ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 14),
                       child: Text(
@@ -345,7 +344,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ),
-                    Expanded(child: Divider(color: Colors.grey.shade300, thickness: 1)),
+                    Expanded(
+                      child: Divider(color: Colors.grey.shade300, thickness: 1),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 24),

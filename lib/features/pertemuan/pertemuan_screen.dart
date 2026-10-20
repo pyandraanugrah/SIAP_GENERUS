@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+
 import '../../core/theme/app_colors.dart';
 import '../../data/dummy_data.dart';
 import '../../models/app_models.dart';
 import '../absensi/absensi_screen.dart';
+import '../../shared/widgets/default_avatar.dart';
 
 class PertemuanScreen extends StatefulWidget {
   const PertemuanScreen({super.key});
@@ -39,8 +41,10 @@ class _PertemuanScreenState extends State<PertemuanScreen> {
 
   List<PertemuanModel> get _filteredPertemuan {
     return _dataStore.pertemuanList.where((p) {
-      final matchesFilter = _selectedFilter == 'Semua' || p.status == _selectedFilter;
-      final matchesQuery = _searchQuery.isEmpty ||
+      final matchesFilter =
+          _selectedFilter == 'Semua' || p.status == _selectedFilter;
+      final matchesQuery =
+          _searchQuery.isEmpty ||
           p.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
           p.location.toLowerCase().contains(_searchQuery.toLowerCase()) ||
           p.description.toLowerCase().contains(_searchQuery.toLowerCase());
@@ -98,8 +102,11 @@ class _PertemuanScreenState extends State<PertemuanScreen> {
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: titleCtrl,
-                    decoration: const InputDecoration(labelText: 'Nama / Judul Pertemuan'),
-                    validator: (v) => v == null || v.isEmpty ? 'Wajib diisi' : null,
+                    decoration: const InputDecoration(
+                      labelText: 'Nama / Judul Pertemuan',
+                    ),
+                    validator: (v) =>
+                        v == null || v.isEmpty ? 'Wajib diisi' : null,
                   ),
                   const SizedBox(height: 12),
                   Row(
@@ -107,8 +114,11 @@ class _PertemuanScreenState extends State<PertemuanScreen> {
                       Expanded(
                         child: TextFormField(
                           controller: dateCtrl,
-                          decoration: const InputDecoration(labelText: 'Tanggal'),
-                          validator: (v) => v == null || v.isEmpty ? 'Wajib diisi' : null,
+                          decoration: const InputDecoration(
+                            labelText: 'Tanggal',
+                          ),
+                          validator: (v) =>
+                              v == null || v.isEmpty ? 'Wajib diisi' : null,
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -116,7 +126,8 @@ class _PertemuanScreenState extends State<PertemuanScreen> {
                         child: TextFormField(
                           controller: timeCtrl,
                           decoration: const InputDecoration(labelText: 'Waktu'),
-                          validator: (v) => v == null || v.isEmpty ? 'Wajib diisi' : null,
+                          validator: (v) =>
+                              v == null || v.isEmpty ? 'Wajib diisi' : null,
                         ),
                       ),
                     ],
@@ -124,16 +135,27 @@ class _PertemuanScreenState extends State<PertemuanScreen> {
                   const SizedBox(height: 12),
                   TextFormField(
                     controller: locCtrl,
-                    decoration: const InputDecoration(labelText: 'Tempat / Lokasi'),
-                    validator: (v) => v == null || v.isEmpty ? 'Wajib diisi' : null,
+                    decoration: const InputDecoration(
+                      labelText: 'Tempat / Lokasi',
+                    ),
+                    validator: (v) =>
+                        v == null || v.isEmpty ? 'Wajib diisi' : null,
                   ),
                   const SizedBox(height: 12),
                   DropdownButtonFormField<String>(
                     initialValue: status,
-                    decoration: const InputDecoration(labelText: 'Status Pertemuan'),
+                    decoration: const InputDecoration(
+                      labelText: 'Status Pertemuan',
+                    ),
                     items: const [
-                      DropdownMenuItem(value: 'Akan Datang', child: Text('Akan Datang')),
-                      DropdownMenuItem(value: 'Selesai', child: Text('Selesai')),
+                      DropdownMenuItem(
+                        value: 'Akan Datang',
+                        child: Text('Akan Datang'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Selesai',
+                        child: Text('Selesai'),
+                      ),
                     ],
                     onChanged: (v) => setModalState(() => status = v!),
                   ),
@@ -141,7 +163,9 @@ class _PertemuanScreenState extends State<PertemuanScreen> {
                   TextFormField(
                     controller: descCtrl,
                     maxLines: 2,
-                    decoration: const InputDecoration(labelText: 'Deskripsi Singkat'),
+                    decoration: const InputDecoration(
+                      labelText: 'Deskripsi Singkat',
+                    ),
                   ),
                   const SizedBox(height: 20),
                   SizedBox(
@@ -165,7 +189,9 @@ class _PertemuanScreenState extends State<PertemuanScreen> {
                           Navigator.pop(ctx);
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text('Pertemuan berhasil disimpan secara lokal!'),
+                              content: Text(
+                                'Pertemuan berhasil disimpan secara lokal!',
+                              ),
                               behavior: SnackBarBehavior.floating,
                             ),
                           );
@@ -199,7 +225,10 @@ class _PertemuanScreenState extends State<PertemuanScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: p.status == 'Akan Datang'
                         ? AppColors.lightGreenBadge
@@ -235,33 +264,67 @@ class _PertemuanScreenState extends State<PertemuanScreen> {
             const SizedBox(height: 14),
             Row(
               children: [
-                const Icon(Icons.calendar_month_outlined, size: 18, color: AppColors.primaryGreen),
+                const Icon(
+                  Icons.calendar_month_outlined,
+                  size: 18,
+                  color: AppColors.primaryGreen,
+                ),
                 const SizedBox(width: 8),
-                Text(p.date, style: const TextStyle(fontSize: 13, color: AppColors.primaryText)),
+                Text(
+                  p.date,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: AppColors.primaryText,
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 8),
             Row(
               children: [
-                const Icon(Icons.access_time_rounded, size: 18, color: AppColors.primaryGreen),
+                const Icon(
+                  Icons.access_time_rounded,
+                  size: 18,
+                  color: AppColors.primaryGreen,
+                ),
                 const SizedBox(width: 8),
-                Text(p.time, style: const TextStyle(fontSize: 13, color: AppColors.primaryText)),
+                Text(
+                  p.time,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: AppColors.primaryText,
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 8),
             Row(
               children: [
-                const Icon(Icons.place_outlined, size: 18, color: AppColors.primaryGreen),
+                const Icon(
+                  Icons.place_outlined,
+                  size: 18,
+                  color: AppColors.primaryGreen,
+                ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Text(p.location, style: const TextStyle(fontSize: 13, color: AppColors.primaryText)),
+                  child: Text(
+                    p.location,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: AppColors.primaryText,
+                    ),
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 14),
             Text(
               p.description,
-              style: const TextStyle(fontSize: 14, color: AppColors.secondaryText, height: 1.4),
+              style: const TextStyle(
+                fontSize: 14,
+                color: AppColors.secondaryText,
+                height: 1.4,
+              ),
             ),
             const SizedBox(height: 20),
             SizedBox(
@@ -312,15 +375,7 @@ class _PertemuanScreenState extends State<PertemuanScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFD6DFDC),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.person, color: AppColors.primaryGreen, size: 26),
-                    ),
+                    const DefaultAvatar(size: 44),
                     const Column(
                       children: [
                         Text(
@@ -344,7 +399,11 @@ class _PertemuanScreenState extends State<PertemuanScreen> {
                       ],
                     ),
                     IconButton(
-                      icon: const Icon(Icons.notifications_none_rounded, color: Colors.white, size: 28),
+                      icon: const Icon(
+                        Icons.notifications_none_rounded,
+                        color: Colors.white,
+                        size: 28,
+                      ),
                       onPressed: () {},
                     ),
                   ],
@@ -394,7 +453,11 @@ class _PertemuanScreenState extends State<PertemuanScreen> {
                               _searchQuery = '';
                             });
                           },
-                          child: const Icon(Icons.clear, size: 18, color: Colors.grey),
+                          child: const Icon(
+                            Icons.clear,
+                            size: 18,
+                            color: Colors.grey,
+                          ),
                         ),
                     ],
                   ),
@@ -421,12 +484,19 @@ class _PertemuanScreenState extends State<PertemuanScreen> {
                           child: GestureDetector(
                             onTap: () => setState(() => _selectedFilter = fil),
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 18,
+                                vertical: 8,
+                              ),
                               decoration: BoxDecoration(
-                                color: isSelected ? AppColors.primaryGreen : Colors.white,
+                                color: isSelected
+                                    ? AppColors.primaryGreen
+                                    : Colors.white,
                                 borderRadius: BorderRadius.circular(24),
                                 border: Border.all(
-                                  color: isSelected ? AppColors.primaryGreen : const Color(0xFF1B1B1B),
+                                  color: isSelected
+                                      ? AppColors.primaryGreen
+                                      : const Color(0xFF1B1B1B),
                                   width: 1.2,
                                 ),
                               ),
@@ -435,20 +505,25 @@ class _PertemuanScreenState extends State<PertemuanScreen> {
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.bold,
-                                  color: isSelected ? Colors.white : const Color(0xFF1B1B1B),
+                                  color: isSelected
+                                      ? Colors.white
+                                      : const Color(0xFF1B1B1B),
                                 ),
                               ),
                             ),
                           ),
                         );
                       }).toList(),
-                      ),
                     ),
                   ),
+                ),
                 GestureDetector(
                   onTap: _showAddPertemuanDialog,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.secondaryGreen,
                       borderRadius: BorderRadius.circular(20),
@@ -486,19 +561,27 @@ class _PertemuanScreenState extends State<PertemuanScreen> {
                     ),
                   )
                 : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 4,
+                    ),
                     itemCount: list.length,
                     itemBuilder: (ctx, index) {
                       final item = list[index];
                       // Show section header when status changes or on the first item
-                      final bool showHeader = index == 0 || list[index - 1].status != item.status;
+                      final bool showHeader =
+                          index == 0 || list[index - 1].status != item.status;
 
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           if (showHeader) ...[
                             Padding(
-                              padding: const EdgeInsets.only(top: 8, bottom: 8, left: 4),
+                              padding: const EdgeInsets.only(
+                                top: 8,
+                                bottom: 8,
+                                left: 4,
+                              ),
                               child: Text(
                                 item.status,
                                 style: const TextStyle(
@@ -529,7 +612,8 @@ class _PertemuanScreenState extends State<PertemuanScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Expanded(
                                         child: Text(
@@ -542,12 +626,17 @@ class _PertemuanScreenState extends State<PertemuanScreen> {
                                         ),
                                       ),
                                       Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 3,
+                                        ),
                                         decoration: BoxDecoration(
                                           color: item.status == 'Akan Datang'
                                               ? AppColors.lightGreenBadge
                                               : Colors.grey.shade200,
-                                          borderRadius: BorderRadius.circular(10),
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
                                         ),
                                         child: Text(
                                           item.status,
@@ -565,32 +654,53 @@ class _PertemuanScreenState extends State<PertemuanScreen> {
                                   const SizedBox(height: 10),
                                   Row(
                                     children: [
-                                      const Icon(Icons.calendar_today_rounded, size: 14, color: AppColors.secondaryText),
+                                      const Icon(
+                                        Icons.calendar_today_rounded,
+                                        size: 14,
+                                        color: AppColors.secondaryText,
+                                      ),
                                       const SizedBox(width: 6),
                                       Text(
                                         item.date,
-                                        style: const TextStyle(fontSize: 12, color: AppColors.secondaryText),
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          color: AppColors.secondaryText,
+                                        ),
                                       ),
                                       const SizedBox(width: 14),
-                                      const Icon(Icons.access_time_rounded, size: 14, color: AppColors.secondaryText),
+                                      const Icon(
+                                        Icons.access_time_rounded,
+                                        size: 14,
+                                        color: AppColors.secondaryText,
+                                      ),
                                       const SizedBox(width: 6),
                                       Text(
                                         item.time,
-                                        style: const TextStyle(fontSize: 12, color: AppColors.secondaryText),
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          color: AppColors.secondaryText,
+                                        ),
                                       ),
                                     ],
                                   ),
                                   const SizedBox(height: 6),
                                   Row(
                                     children: [
-                                      const Icon(Icons.place_outlined, size: 14, color: AppColors.secondaryText),
+                                      const Icon(
+                                        Icons.place_outlined,
+                                        size: 14,
+                                        color: AppColors.secondaryText,
+                                      ),
                                       const SizedBox(width: 6),
                                       Expanded(
                                         child: Text(
                                           item.location,
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(fontSize: 12, color: AppColors.secondaryText),
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            color: AppColors.secondaryText,
+                                          ),
                                         ),
                                       ),
                                     ],

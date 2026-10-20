@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../core/theme/app_colors.dart';
 import '../../data/dummy_data.dart';
 import '../generus/generus_list_screen.dart';
@@ -8,6 +9,7 @@ import '../prestasi/prestasi_screen.dart';
 import '../pengajar/pengajar_list_screen.dart';
 import '../kelas/kelas_list_screen.dart';
 import '../pembinaan/pembinaan_screen.dart';
+import '../../shared/widgets/default_avatar.dart';
 
 class DashboardScreen extends StatefulWidget {
   final Function(int)? onNavigateTab;
@@ -60,40 +62,73 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ListTile(
               leading: const CircleAvatar(
                 backgroundColor: AppColors.lightGreenBadge,
-                child: Icon(Icons.school_rounded, color: AppColors.primaryGreen),
+                child: Icon(
+                  Icons.school_rounded,
+                  color: AppColors.primaryGreen,
+                ),
               ),
-              title: const Text('Data Pengajar', style: TextStyle(fontWeight: FontWeight.w600)),
-              subtitle: Text('${_dataStore.pengajarList.length} Pengajar terdaftar'),
+              title: const Text(
+                'Data Pengajar',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
+              subtitle: Text(
+                '${_dataStore.pengajarList.length} Pengajar terdaftar',
+              ),
               trailing: const Icon(Icons.chevron_right_rounded),
               onTap: () {
                 Navigator.pop(ctx);
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const PengajarListScreen()));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const PengajarListScreen()),
+                );
               },
             ),
             ListTile(
               leading: const CircleAvatar(
                 backgroundColor: AppColors.lightGreenBadge,
-                child: Icon(Icons.meeting_room_rounded, color: AppColors.primaryGreen),
+                child: Icon(
+                  Icons.meeting_room_rounded,
+                  color: AppColors.primaryGreen,
+                ),
               ),
-              title: const Text('Data Kelas & Jenjang', style: TextStyle(fontWeight: FontWeight.w600)),
-              subtitle: Text('${_dataStore.kelasList.length} Kelas (PAUD, SD, SMP, SMA)'),
+              title: const Text(
+                'Data Kelas & Jenjang',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
+              subtitle: Text(
+                '${_dataStore.kelasList.length} Kelas (PAUD, SD, SMP, SMA)',
+              ),
               trailing: const Icon(Icons.chevron_right_rounded),
               onTap: () {
                 Navigator.pop(ctx);
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const KelasListScreen()));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const KelasListScreen()),
+                );
               },
             ),
             ListTile(
               leading: const CircleAvatar(
                 backgroundColor: AppColors.lightGreenBadge,
-                child: Icon(Icons.assignment_ind_rounded, color: AppColors.primaryGreen),
+                child: Icon(
+                  Icons.assignment_ind_rounded,
+                  color: AppColors.primaryGreen,
+                ),
               ),
-              title: const Text('Catatan Pembinaan', style: TextStyle(fontWeight: FontWeight.w600)),
-              subtitle: Text('${_dataStore.pembinaanList.length} Catatan tindak lanjut'),
+              title: const Text(
+                'Catatan Pembinaan',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
+              subtitle: Text(
+                '${_dataStore.pembinaanList.length} Catatan tindak lanjut',
+              ),
               trailing: const Icon(Icons.chevron_right_rounded),
               onTap: () {
                 Navigator.pop(ctx);
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const PembinaanScreen()));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const PembinaanScreen()),
+                );
               },
             ),
           ],
@@ -139,25 +174,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     child: Row(
                       children: [
                         // Avatar
-                        Container(
-                          width: 58,
-                          height: 58,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: AppColors.lightGreen,
-                            border: Border.all(color: AppColors.border, width: 1.5),
-                          ),
-                          child: ClipOval(
-                            child: Image.asset(
-                              'references/Dashboard-Generus.png',
-                              fit: BoxFit.none,
-                              alignment: const Alignment(-0.65, -0.68),
-                              errorBuilder: (context, error, stackTrace) => const Icon(
-                                Icons.person,
-                                color: AppColors.primaryGreen,
-                                size: 36,
-                              ),
-                            ),
+                        DefaultAvatar(
+                          size: 58,
+                          border: Border.all(
+                            color: AppColors.border,
+                            width: 1.5,
                           ),
                         ),
                         const SizedBox(width: 14),
@@ -196,7 +217,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                         // More options shortcut
                         IconButton(
-                          icon: const Icon(Icons.tune_rounded, color: AppColors.primaryGreen),
+                          icon: const Icon(
+                            Icons.tune_rounded,
+                            color: AppColors.primaryGreen,
+                          ),
                           tooltip: 'Semua Modul',
                           onPressed: _showExtraModulesModal,
                         ),
@@ -226,15 +250,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             onTap: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (_) => const GenerusListScreen()),
+                                MaterialPageRoute(
+                                  builder: (_) => const GenerusListScreen(),
+                                ),
                               );
                             },
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 12,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(20),
-                                border: Border.all(color: const Color(0xFFE2E6E3)),
+                                border: Border.all(
+                                  color: const Color(0xFFE2E6E3),
+                                ),
                                 boxShadow: [
                                   BoxShadow(
                                     color: Colors.black.withValues(alpha: 0.03),
@@ -256,7 +287,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   ),
                                   const SizedBox(height: 10),
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Row(
                                         children: [
@@ -270,10 +302,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           ),
                                           const SizedBox(width: 6),
                                           Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 5,
+                                              vertical: 2,
+                                            ),
                                             decoration: BoxDecoration(
                                               color: AppColors.lightGreenBadge,
-                                              borderRadius: BorderRadius.circular(6),
+                                              borderRadius:
+                                                  BorderRadius.circular(6),
                                             ),
                                             child: const Text(
                                               '+5%',
@@ -304,17 +340,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             onTap: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (_) => const KelasListScreen()),
+                                MaterialPageRoute(
+                                  builder: (_) => const KelasListScreen(),
+                                ),
                               );
                             },
                             child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 14,
+                              ),
                               decoration: BoxDecoration(
                                 color: AppColors.darkGreenCard,
                                 borderRadius: BorderRadius.circular(20),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: AppColors.darkGreenCard.withValues(alpha: 0.25),
+                                    color: AppColors.darkGreenCard.withValues(
+                                      alpha: 0.25,
+                                    ),
                                     blurRadius: 8,
                                     offset: const Offset(0, 4),
                                   ),
@@ -333,7 +376,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   ),
                                   const SizedBox(height: 8),
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
                                         '${_dataStore.totalKelas}',
@@ -363,7 +407,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     Expanded(
                       flex: 5,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 14,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(20),
@@ -404,9 +451,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       value: _dataStore.attendanceRate / 100,
                                       strokeWidth: 7,
                                       backgroundColor: const Color(0xFFE4ECE7),
-                                      valueColor: const AlwaysStoppedAnimation<Color>(
-                                        AppColors.primaryGreen,
-                                      ),
+                                      valueColor:
+                                          const AlwaysStoppedAnimation<Color>(
+                                            AppColors.primaryGreen,
+                                          ),
                                       strokeCap: StrokeCap.round,
                                     ),
                                   ),
@@ -424,7 +472,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             const SizedBox(height: 8),
                             // Red pill -9%
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
                                 color: AppColors.badgeRedBg,
                                 borderRadius: BorderRadius.circular(6),
@@ -480,7 +531,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           onTap: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (_) => const GenerusListScreen()),
+                              MaterialPageRoute(
+                                builder: (_) => const GenerusListScreen(),
+                              ),
                             );
                           },
                         ),
@@ -495,7 +548,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           onTap: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (_) => const AbsensiScreen()),
+                              MaterialPageRoute(
+                                builder: (_) => const AbsensiScreen(),
+                              ),
                             );
                           },
                         ),
@@ -514,7 +569,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           onTap: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (_) => const ProgressScreen()),
+                              MaterialPageRoute(
+                                builder: (_) => const ProgressScreen(),
+                              ),
                             );
                           },
                         ),
@@ -529,7 +586,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           onTap: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (_) => const PrestasiScreen()),
+                              MaterialPageRoute(
+                                builder: (_) => const PrestasiScreen(),
+                              ),
                             );
                           },
                         ),
@@ -605,7 +664,10 @@ class _FeatureCard extends StatelessWidget {
                   height: 22,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.primaryGreen, width: 1.5),
+                    border: Border.all(
+                      color: AppColors.primaryGreen,
+                      width: 1.5,
+                    ),
                   ),
                   child: const Center(
                     child: Icon(

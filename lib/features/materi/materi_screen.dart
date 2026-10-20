@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+
 import '../../core/theme/app_colors.dart';
 import '../../data/dummy_data.dart';
 import '../../models/app_models.dart';
+import '../../shared/widgets/default_avatar.dart';
 
 class MateriScreen extends StatefulWidget {
   const MateriScreen({super.key});
@@ -17,7 +19,13 @@ class _MateriScreenState extends State<MateriScreen> {
   String _selectedCategory = 'Semua';
   String _searchQuery = '';
 
-  final List<String> _categories = ['Semua', 'Tilawah', 'Hafalan', 'Doa', 'Pegon'];
+  final List<String> _categories = [
+    'Semua',
+    'Tilawah',
+    'Hafalan',
+    'Doa',
+    'Pegon',
+  ];
 
   @override
   void dispose() {
@@ -27,9 +35,11 @@ class _MateriScreenState extends State<MateriScreen> {
 
   List<MateriModel> get _filteredMateri {
     return _dataStore.materiList.where((m) {
-      final matchesCategory = _selectedCategory == 'Semua' ||
+      final matchesCategory =
+          _selectedCategory == 'Semua' ||
           m.category.toLowerCase() == _selectedCategory.toLowerCase();
-      final matchesQuery = _searchQuery.isEmpty ||
+      final matchesQuery =
+          _searchQuery.isEmpty ||
           m.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
           m.summary.toLowerCase().contains(_searchQuery.toLowerCase());
       return matchesCategory && matchesQuery;
@@ -58,7 +68,10 @@ class _MateriScreenState extends State<MateriScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.lightGreenBadge,
                     borderRadius: BorderRadius.circular(20),
@@ -126,8 +139,17 @@ class _MateriScreenState extends State<MateriScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Progres Pemahaman:', style: TextStyle(fontWeight: FontWeight.w600)),
-                Text('${item.progress}%', style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primaryGreen)),
+                const Text(
+                  'Progres Pemahaman:',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                Text(
+                  '${item.progress}%',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primaryGreen,
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 8),
@@ -137,7 +159,9 @@ class _MateriScreenState extends State<MateriScreen> {
                 value: item.progress / 100,
                 minHeight: 8,
                 backgroundColor: Colors.grey.shade200,
-                valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primaryGreen),
+                valueColor: const AlwaysStoppedAnimation<Color>(
+                  AppColors.primaryGreen,
+                ),
               ),
             ),
             const SizedBox(height: 20),
@@ -173,15 +197,7 @@ class _MateriScreenState extends State<MateriScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFD6DFDC),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.person, color: AppColors.primaryGreen, size: 26),
-                    ),
+                    const DefaultAvatar(size: 44),
                     const Column(
                       children: [
                         Text(
@@ -213,7 +229,9 @@ class _MateriScreenState extends State<MateriScreen> {
                       onPressed: () {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('Tidak ada pemberitahuan materi baru'),
+                            content: Text(
+                              'Tidak ada pemberitahuan materi baru',
+                            ),
                             behavior: SnackBarBehavior.floating,
                           ),
                         );
@@ -266,7 +284,11 @@ class _MateriScreenState extends State<MateriScreen> {
                               _searchQuery = '';
                             });
                           },
-                          child: const Icon(Icons.clear, size: 18, color: Colors.grey),
+                          child: const Icon(
+                            Icons.clear,
+                            size: 18,
+                            color: Colors.grey,
+                          ),
                         ),
                     ],
                   ),
@@ -293,12 +315,19 @@ class _MateriScreenState extends State<MateriScreen> {
                       });
                     },
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
-                        color: isSelected ? AppColors.primaryGreen : Colors.white,
+                        color: isSelected
+                            ? AppColors.primaryGreen
+                            : Colors.white,
                         borderRadius: BorderRadius.circular(24),
                         border: Border.all(
-                          color: isSelected ? AppColors.primaryGreen : const Color(0xFF1B1B1B),
+                          color: isSelected
+                              ? AppColors.primaryGreen
+                              : const Color(0xFF1B1B1B),
                           width: 1.2,
                         ),
                       ),
@@ -307,7 +336,9 @@ class _MateriScreenState extends State<MateriScreen> {
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
-                          color: isSelected ? Colors.white : const Color(0xFF1B1B1B),
+                          color: isSelected
+                              ? Colors.white
+                              : const Color(0xFF1B1B1B),
                         ),
                       ),
                     ),
@@ -329,7 +360,10 @@ class _MateriScreenState extends State<MateriScreen> {
                     ),
                   )
                 : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 4,
+                    ),
                     itemCount: list.length,
                     itemBuilder: (ctx, index) {
                       final item = list[index];
@@ -353,10 +387,14 @@ class _MateriScreenState extends State<MateriScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 4,
+                                    ),
                                     decoration: BoxDecoration(
                                       color: AppColors.lightGreenBadge,
                                       borderRadius: BorderRadius.circular(12),
@@ -407,9 +445,10 @@ class _MateriScreenState extends State<MateriScreen> {
                                   value: item.progress / 100,
                                   minHeight: 6,
                                   backgroundColor: const Color(0xFFE8EDE9),
-                                  valueColor: const AlwaysStoppedAnimation<Color>(
-                                    AppColors.primaryGreen,
-                                  ),
+                                  valueColor:
+                                      const AlwaysStoppedAnimation<Color>(
+                                        AppColors.primaryGreen,
+                                      ),
                                 ),
                               ),
                             ],

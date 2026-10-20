@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+
 import '../../core/theme/app_colors.dart';
 import '../../data/dummy_data.dart';
 import '../../models/app_models.dart';
+import '../../shared/widgets/default_avatar.dart';
 
 class LaporanScreen extends StatefulWidget {
   const LaporanScreen({super.key});
@@ -29,7 +31,10 @@ class _LaporanScreenState extends State<LaporanScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.lightGreenBadge,
                     borderRadius: BorderRadius.circular(10),
@@ -61,22 +66,35 @@ class _LaporanScreenState extends State<LaporanScreen> {
             const SizedBox(height: 6),
             Row(
               children: [
-                const Icon(Icons.calendar_today_rounded, size: 14, color: AppColors.secondaryText),
+                const Icon(
+                  Icons.calendar_today_rounded,
+                  size: 14,
+                  color: AppColors.secondaryText,
+                ),
                 const SizedBox(width: 6),
                 Text(
                   'Tanggal: ${item.date}',
-                  style: const TextStyle(fontSize: 13, color: AppColors.secondaryText),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: AppColors.secondaryText,
+                  ),
                 ),
                 const SizedBox(width: 14),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.grey.shade200,
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
                     'Status: ${item.status}',
-                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ],
@@ -149,7 +167,13 @@ class _LaporanScreenState extends State<LaporanScreen> {
               alignment: Alignment.centerRight,
               child: TextButton(
                 onPressed: () => Navigator.pop(ctx),
-                child: const Text('Tutup', style: TextStyle(color: AppColors.primaryGreen, fontWeight: FontWeight.bold)),
+                child: const Text(
+                  'Tutup',
+                  style: TextStyle(
+                    color: AppColors.primaryGreen,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
           ],
@@ -178,20 +202,14 @@ class _LaporanScreenState extends State<LaporanScreen> {
               ),
               decoration: const BoxDecoration(
                 color: AppColors.primaryGreen,
-                borderRadius: BorderRadius.vertical(bottom: Radius.circular(32)),
+                borderRadius: BorderRadius.vertical(
+                  bottom: Radius.circular(32),
+                ),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFD6DFDC),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.person, color: AppColors.primaryGreen, size: 26),
-                  ),
+                  const DefaultAvatar(size: 44),
                   const Column(
                     children: [
                       Text(
@@ -215,7 +233,11 @@ class _LaporanScreenState extends State<LaporanScreen> {
                     ],
                   ),
                   IconButton(
-                    icon: const Icon(Icons.notifications_none_rounded, color: Colors.white, size: 28),
+                    icon: const Icon(
+                      Icons.notifications_none_rounded,
+                      color: Colors.white,
+                      size: 28,
+                    ),
                     onPressed: () {},
                   ),
                 ],
@@ -282,7 +304,10 @@ class _LaporanScreenState extends State<LaporanScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 3,
+                                ),
                                 decoration: BoxDecoration(
                                   color: AppColors.lightGreenBadge,
                                   borderRadius: BorderRadius.circular(8),
@@ -358,25 +383,37 @@ class _LaporanScreenState extends State<LaporanScreen> {
                   _CategorySquareCard(
                     title: 'Generus',
                     icon: Icons.people_outline_rounded,
-                    onTap: () => _showCategorySummary('Generus', 'Kumpulan rekapitulasi data demografi, data orang tua, dan mutasi peserta generus.'),
+                    onTap: () => _showCategorySummary(
+                      'Generus',
+                      'Kumpulan rekapitulasi data demografi, data orang tua, dan mutasi peserta generus.',
+                    ),
                   ),
                   const SizedBox(width: 10),
                   _CategorySquareCard(
                     title: 'Kelas',
                     icon: Icons.meeting_room_outlined,
-                    onTap: () => _showCategorySummary('Kelas', 'Laporan distribusi kelas jenjang PAUD, SD, SMP, hingga SMA dan pengajar pengampu.'),
+                    onTap: () => _showCategorySummary(
+                      'Kelas',
+                      'Laporan distribusi kelas jenjang PAUD, SD, SMP, hingga SMA dan pengajar pengampu.',
+                    ),
                   ),
                   const SizedBox(width: 10),
                   _CategorySquareCard(
                     title: 'Absensi',
                     icon: Icons.event_available_outlined,
-                    onTap: () => _showCategorySummary('Absensi', 'Statistik rekap kehadiran, persentase hadir, izin, sakit, dan tanpa keterangan.'),
+                    onTap: () => _showCategorySummary(
+                      'Absensi',
+                      'Statistik rekap kehadiran, persentase hadir, izin, sakit, dan tanpa keterangan.',
+                    ),
                   ),
                   const SizedBox(width: 10),
                   _CategorySquareCard(
                     title: 'Materi',
                     icon: Icons.menu_book_outlined,
-                    onTap: () => _showCategorySummary('Materi', 'Pencapaian kurikulum Tilawah, Hafalan Al-Qur\'an, Doa harian, dan Pegon.'),
+                    onTap: () => _showCategorySummary(
+                      'Materi',
+                      'Pencapaian kurikulum Tilawah, Hafalan Al-Qur\'an, Doa harian, dan Pegon.',
+                    ),
                   ),
                 ],
               ),
@@ -392,25 +429,37 @@ class _LaporanScreenState extends State<LaporanScreen> {
                   _CategorySquareCard(
                     title: 'Progress',
                     icon: Icons.trending_up_rounded,
-                    onTap: () => _showCategorySummary('Progress', 'Grafik perkembangan capaian belajar setiap jenjang dan generus.'),
+                    onTap: () => _showCategorySummary(
+                      'Progress',
+                      'Grafik perkembangan capaian belajar setiap jenjang dan generus.',
+                    ),
                   ),
                   const SizedBox(width: 10),
                   _CategorySquareCard(
                     title: 'Pembinaan',
                     icon: Icons.assignment_ind_outlined,
-                    onTap: () => _showCategorySummary('Pembinaan', 'Catatan tindak lanjut bimbingan kepribadian dan akhlak generus.'),
+                    onTap: () => _showCategorySummary(
+                      'Pembinaan',
+                      'Catatan tindak lanjut bimbingan kepribadian dan akhlak generus.',
+                    ),
                   ),
                   const SizedBox(width: 10),
                   _CategorySquareCard(
                     title: 'Prestasi',
                     icon: Icons.emoji_events_outlined,
-                    onTap: () => _showCategorySummary('Prestasi', 'Rekapitulasi piagam dan prestasi generasi muda di berbagai tingkatan.'),
+                    onTap: () => _showCategorySummary(
+                      'Prestasi',
+                      'Rekapitulasi piagam dan prestasi generasi muda di berbagai tingkatan.',
+                    ),
                   ),
                   const SizedBox(width: 10),
                   _CategorySquareCard(
                     title: 'Bulanan',
                     icon: Icons.calendar_month_outlined,
-                    onTap: () => _showCategorySummary('Bulanan', 'Ringkasan komprehensif amalan dan target pembinaan setiap akhir bulan.'),
+                    onTap: () => _showCategorySummary(
+                      'Bulanan',
+                      'Ringkasan komprehensif amalan dan target pembinaan setiap akhir bulan.',
+                    ),
                   ),
                 ],
               ),

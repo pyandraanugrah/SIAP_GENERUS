@@ -1,10 +1,24 @@
 import 'package:flutter/foundation.dart';
+
 import '../models/app_models.dart';
 
 class DummyDataStore extends ChangeNotifier {
   static final DummyDataStore instance = DummyDataStore._internal();
   DummyDataStore._internal() {
     _initData();
+  }
+
+  // Demo Auth Session
+  bool isLoggedIn = false;
+
+  void login() {
+    isLoggedIn = true;
+    notifyListeners();
+  }
+
+  void logout() {
+    isLoggedIn = false;
+    notifyListeners();
   }
 
   // Teacher Profile (Dashboard)
@@ -171,18 +185,90 @@ class DummyDataStore extends ChangeNotifier {
 
     // Kelas
     kelasList.addAll([
-      KelasModel(id: 'K01', name: 'PAUD Generus', level: 'PAUD', teacherName: 'Ust. Ridwan Kamiludin', studentCount: 18),
-      KelasModel(id: 'K02', name: 'Kelas 1 SD', level: 'SD', teacherName: 'Ust. Ridwan Kamiludin', studentCount: 22),
-      KelasModel(id: 'K03', name: 'Kelas 2 SD', level: 'SD', teacherName: 'Ustazah Annisa Rahma', studentCount: 20),
-      KelasModel(id: 'K04', name: 'Kelas 3 SD', level: 'SD', teacherName: 'Ustazah Annisa Rahma', studentCount: 24),
-      KelasModel(id: 'K05', name: 'Kelas 4 SD', level: 'SD', teacherName: 'Ust. Fauzan Hanif', studentCount: 21),
-      KelasModel(id: 'K06', name: 'Kelas 5 SD', level: 'SD', teacherName: 'Muhammad Heisal Alfarizi', studentCount: 25),
-      KelasModel(id: 'K07', name: 'Kelas 6 SD', level: 'SD', teacherName: 'Muhammad Heisal Alfarizi', studentCount: 23),
-      KelasModel(id: 'K08', name: 'Kelas 1 SMP', level: 'SMP', teacherName: 'Muhammad Heisal Alfarizi', studentCount: 26),
-      KelasModel(id: 'K09', name: 'Kelas 2 SMP', level: 'SMP', teacherName: 'Ust. Fauzan Hanif', studentCount: 20),
-      KelasModel(id: 'K10', name: 'Kelas 3 SMP', level: 'SMP', teacherName: 'Ust. Fauzan Hanif', studentCount: 19),
-      KelasModel(id: 'K11', name: 'Kelas 1 SMA', level: 'SMA', teacherName: 'Ust. Fauzan Hanif', studentCount: 17),
-      KelasModel(id: 'K12', name: 'Kelas 2 & 3 SMA', level: 'SMA', teacherName: 'Muhammad Heisal Alfarizi', studentCount: 15),
+      KelasModel(
+        id: 'K01',
+        name: 'PAUD Generus',
+        level: 'PAUD',
+        teacherName: 'Ust. Ridwan Kamiludin',
+        studentCount: 18,
+      ),
+      KelasModel(
+        id: 'K02',
+        name: 'Kelas 1 SD',
+        level: 'SD',
+        teacherName: 'Ust. Ridwan Kamiludin',
+        studentCount: 22,
+      ),
+      KelasModel(
+        id: 'K03',
+        name: 'Kelas 2 SD',
+        level: 'SD',
+        teacherName: 'Ustazah Annisa Rahma',
+        studentCount: 20,
+      ),
+      KelasModel(
+        id: 'K04',
+        name: 'Kelas 3 SD',
+        level: 'SD',
+        teacherName: 'Ustazah Annisa Rahma',
+        studentCount: 24,
+      ),
+      KelasModel(
+        id: 'K05',
+        name: 'Kelas 4 SD',
+        level: 'SD',
+        teacherName: 'Ust. Fauzan Hanif',
+        studentCount: 21,
+      ),
+      KelasModel(
+        id: 'K06',
+        name: 'Kelas 5 SD',
+        level: 'SD',
+        teacherName: 'Muhammad Heisal Alfarizi',
+        studentCount: 25,
+      ),
+      KelasModel(
+        id: 'K07',
+        name: 'Kelas 6 SD',
+        level: 'SD',
+        teacherName: 'Muhammad Heisal Alfarizi',
+        studentCount: 23,
+      ),
+      KelasModel(
+        id: 'K08',
+        name: 'Kelas 1 SMP',
+        level: 'SMP',
+        teacherName: 'Muhammad Heisal Alfarizi',
+        studentCount: 26,
+      ),
+      KelasModel(
+        id: 'K09',
+        name: 'Kelas 2 SMP',
+        level: 'SMP',
+        teacherName: 'Ust. Fauzan Hanif',
+        studentCount: 20,
+      ),
+      KelasModel(
+        id: 'K10',
+        name: 'Kelas 3 SMP',
+        level: 'SMP',
+        teacherName: 'Ust. Fauzan Hanif',
+        studentCount: 19,
+      ),
+      KelasModel(
+        id: 'K11',
+        name: 'Kelas 1 SMA',
+        level: 'SMA',
+        teacherName: 'Ust. Fauzan Hanif',
+        studentCount: 17,
+      ),
+      KelasModel(
+        id: 'K12',
+        name: 'Kelas 2 & 3 SMA',
+        level: 'SMA',
+        teacherName: 'Muhammad Heisal Alfarizi',
+        studentCount: 15,
+      ),
     ]);
 
     // Materi (at least 8 as per PRD)
@@ -280,7 +366,8 @@ class DummyDataStore extends ChangeNotifier {
         time: '16:00 - 17:30 WIB',
         location: 'Serambi Timur Masjid',
         status: 'Akan Datang',
-        description: 'Pendalaman makharijul huruf dan tajwid nun sukun praktis.',
+        description:
+            'Pendalaman makharijul huruf dan tajwid nun sukun praktis.',
       ),
       PertemuanModel(
         id: 'P04',
@@ -289,7 +376,8 @@ class DummyDataStore extends ChangeNotifier {
         time: '09:00 - 11:30 WIB',
         location: 'Aula Serbaguna',
         status: 'Selesai',
-        description: 'Evaluasi absensi kehadiran dan capaian kurikulum kuartal ketiga.',
+        description:
+            'Evaluasi absensi kehadiran dan capaian kurikulum kuartal ketiga.',
       ),
       PertemuanModel(
         id: 'P05',
@@ -338,7 +426,8 @@ class DummyDataStore extends ChangeNotifier {
         date: '12 Okt 2026',
         category: 'Motivasi',
         notes: 'Perlu penguatan motivasi murojaah surah panjang.',
-        followupAction: 'Jadwalkan pendampingan khusus bersama pengajar tahfidz.',
+        followupAction:
+            'Jadwalkan pendampingan khusus bersama pengajar tahfidz.',
         status: 'Dalam Proses',
       ),
       PembinaanModel(
@@ -346,7 +435,8 @@ class DummyDataStore extends ChangeNotifier {
         generusName: 'Rayhan Akbar Maulana',
         date: '09 Okt 2026',
         category: 'Akhlak',
-        notes: 'Menunjukkan sopan santun yang teladan kepada pengajar dan teman.',
+        notes:
+            'Menunjukkan sopan santun yang teladan kepada pengajar dan teman.',
         followupAction: 'Apresiasi pada saat apel pembinaan generus.',
         status: 'Selesai',
       ),
@@ -512,9 +602,16 @@ class DummyDataStore extends ChangeNotifier {
     return absensiRecords[meetingId]!;
   }
 
-  void updateAttendance(String meetingId, String generusId, AttendanceStatus status) {
+  void updateAttendance(
+    String meetingId,
+    String generusId,
+    AttendanceStatus status,
+  ) {
     final list = getAbsensiForMeeting(meetingId);
-    final item = list.firstWhere((r) => r.generusId == generusId, orElse: () => list.first);
+    final item = list.firstWhere(
+      (r) => r.generusId == generusId,
+      orElse: () => list.first,
+    );
     item.status = status;
     notifyListeners();
   }
