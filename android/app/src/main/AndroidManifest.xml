@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="siap_generus"
+        android:label="SIAP GENERUS"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

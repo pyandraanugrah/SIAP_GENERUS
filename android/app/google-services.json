@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "740666935799",
+    "project_id": "siap-generus-12897",
+    "storage_bucket": "siap-generus-12897.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:740666935799:android:ced5741eb322206c8606f2",
+        "android_client_info": {
+          "package_name": "com.siapgenerus.siap_generus"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD_G_ky-5wLUx1ORChcFtbPwAm0t3y-Vck"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

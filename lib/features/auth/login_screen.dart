@@ -1,4 +1,6 @@
+
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../data/dummy_data.dart';
@@ -13,13 +15,14 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _emailController = TextEditingController(text: 'demo@siapgenerus.app');
-  final _passwordController = TextEditingController(text: 'Generus123!');
+  final _emailController =
+      TextEditingController(text: 'demo@siapgenerus.app');
+  final _passwordController =
+      TextEditingController(text: 'Generus123!');
   final _formKey = GlobalKey<FormState>();
 
   bool _isPasswordVisible = false;
   bool _isLoading = false;
-  String? _errorMessage;
 
   @override
   void dispose() {
@@ -28,41 +31,80 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _handleLogin() async {
-    setState(() {
-      _errorMessage = null;
-    });
-
+  Future<void> _handleLogin() async {
     if (!_formKey.currentState!.validate()) return;
-
-    final email = _emailController.text.trim();
-    final password = _passwordController.text;
 
     setState(() {
       _isLoading = true;
     });
 
-    await Future.delayed(const Duration(milliseconds: 400));
-
-    if (!mounted) return;
-
-    // Check credentials against PRD demo credentials
-    if (email == 'demo@siapgenerus.app' && password == 'Generus123!') {
-      DummyDataStore.instance.login();
-      setState(() {
-        _isLoading = false;
-      });
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const MainNavigationShell()),
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
       );
-    } else {
+
+      if (!mounted) return;
+
+      DummyDataStore.instance.login();
+
       setState(() {
         _isLoading = false;
-        _errorMessage = 'Email atau kata sandi tidak cocok dengan akun demo.';
       });
+
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => const MainNavigationShell(),
+        ),
+      );
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+
+      String message;
+
+      switch (e.code) {
+        case 'user-not-found':
+        case 'invalid-credential':
+        case 'wrong-password':
+          message = 'Email atau kata sandi tidak sesuai.';
+          break;
+        case 'invalid-email':
+          message = 'Format email tidak valid.';
+          break;
+        case 'user-disabled':
+          message = 'Akun ini telah dinonaktifkan.';
+          break;
+        case 'too-many-requests':
+          message = 'Terlalu banyak percobaan. Coba lagi nanti.';
+          break;
+        case 'network-request-failed':
+          message = 'Periksa koneksi internet kamu.';
+          break;
+        default:
+          message = 'Login gagal. Silakan coba kembali.';
+      }
+
+      setState(() {
+        _isLoading = false;
+      });
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(_errorMessage!),
+          content: Text(message),
+          backgroundColor: AppColors.badgeRed,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Terjadi kesalahan. Silakan coba kembali.'),
           backgroundColor: AppColors.badgeRed,
           behavior: SnackBarBehavior.floating,
         ),
@@ -74,7 +116,10 @@ class _LoginScreenState extends State<LoginScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(
+          title,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
         content: Text(content),
         actions: [
           TextButton(
@@ -95,18 +140,19 @@ class _LoginScreenState extends State<LoginScreen> {
       backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 24,
+            vertical: 16,
+          ),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Top Action Bar
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const SizedBox(width: 40),
-                    // Centered top notch imitation
                     Container(
                       width: 14,
                       height: 14,
@@ -116,15 +162,20 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     PopupMenuButton<String>(
-                      icon: const Icon(Icons.more_vert, color: Colors.black87),
+                      icon: const Icon(
+                        Icons.more_vert,
+                        color: Colors.black87,
+                      ),
                       onSelected: (val) {
                         if (val == 'demo') {
-                          _emailController.text = 'demo@siapgenerus.app';
+                          _emailController.text =
+                              'demo@siapgenerus.app';
                           _passwordController.text = 'Generus123!';
                         } else if (val == 'about') {
                           _showInfoDialog(
                             'Tentang SIAP-GENERUS',
-                            'Aplikasi Sistem Informasi Administrasi dan Pembinaan Generus.\nTahap Frontend Dummy Mode.',
+                            'Aplikasi Sistem Informasi Administrasi '
+                                'dan Pembinaan Generus.',
                           );
                         }
                       },
@@ -142,12 +193,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   ],
                 ),
                 const SizedBox(height: 24),
-
-                // App Icon (green rounded square with book icon)
                 const AppLogo(),
                 const SizedBox(height: 20),
-
-                // Title & Subtitle
                 const Text(
                   'SIAP-GENERUS',
                   style: TextStyle(
@@ -159,7 +206,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'Sistem Informasi Administrasi\ndan Pembinaan Generus',
+                  'Sistem Informasi Administrasi\n'
+                  'dan Pembinaan Generus',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 13,
@@ -168,8 +216,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 32),
-
-                // Form Container
                 Container(
                   padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
@@ -177,12 +223,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     borderRadius: BorderRadius.circular(24),
                     border: Border.all(
                       color: const Color(0xFFE8EDE9),
-                      width: 1,
                     ),
                   ),
                   child: Column(
                     children: [
-                      // Email Field
                       TextFormField(
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
@@ -197,9 +241,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           filled: true,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
-                            borderSide: const BorderSide(
-                              color: Color(0xFFE4E9E5),
-                            ),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
@@ -219,8 +260,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         },
                       ),
                       const SizedBox(height: 16),
-
-                      // Password Field
                       TextFormField(
                         controller: _passwordController,
                         obscureText: !_isPasswordVisible,
@@ -241,7 +280,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             onPressed: () {
                               setState(() {
-                                _isPasswordVisible = !_isPasswordVisible;
+                                _isPasswordVisible =
+                                    !_isPasswordVisible;
                               });
                             },
                           ),
@@ -249,9 +289,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           filled: true,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
-                            borderSide: const BorderSide(
-                              color: Color(0xFFE4E9E5),
-                            ),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
@@ -268,15 +305,13 @@ class _LoginScreenState extends State<LoginScreen> {
                         },
                       ),
                       const SizedBox(height: 12),
-
-                      // Forgot Password Link
                       Align(
                         alignment: Alignment.centerRight,
                         child: GestureDetector(
                           onTap: () {
                             _showInfoDialog(
                               'Lupa Password',
-                              'Simulasi reset password demo.\nSilakan hubungi administrator atau gunakan kredensial demo default.',
+                              'Fitur reset password belum diaktifkan.',
                             );
                           },
                           child: const Text(
@@ -290,8 +325,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       const SizedBox(height: 18),
-
-                      // Login Button
                       SizedBox(
                         width: double.infinity,
                         height: 52,
@@ -327,15 +360,18 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 28),
-
-                // Divider 'atau'
                 Row(
                   children: [
                     Expanded(
-                      child: Divider(color: Colors.grey.shade300, thickness: 1),
+                      child: Divider(
+                        color: Colors.grey.shade300,
+                        thickness: 1,
+                      ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                      ),
                       child: Text(
                         'atau',
                         style: TextStyle(
@@ -345,18 +381,19 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     Expanded(
-                      child: Divider(color: Colors.grey.shade300, thickness: 1),
+                      child: Divider(
+                        color: Colors.grey.shade300,
+                        thickness: 1,
+                      ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 24),
-
-                // Login dengan Google Button
                 InkWell(
                   onTap: () {
                     _showInfoDialog(
                       'Login Google',
-                      'Simulasi OAuth Google: Kredensial demo aktif secara lokal.',
+                      'Login Google belum diintegrasikan.',
                     );
                   },
                   borderRadius: BorderRadius.circular(16),
@@ -366,7 +403,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     decoration: BoxDecoration(
                       color: const Color(0xFFF9FAF9),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFFE4E9E5)),
+                      border: Border.all(
+                        color: const Color(0xFFE4E9E5),
+                      ),
                     ),
                     child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -390,8 +429,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-
-                // Register Link
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -406,7 +443,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       onTap: () {
                         _showInfoDialog(
                           'Daftar Akun',
-                          'Pendaftaran akun baru disimulasikan secara lokal.\nSilakan gunakan kredensial demo untuk masuk.',
+                          'Pendaftaran akun hanya dapat dilakukan '
+                              'oleh administrator untuk saat ini.',
                         );
                       },
                       child: const Text(

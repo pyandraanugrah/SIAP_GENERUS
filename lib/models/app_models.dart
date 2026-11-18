@@ -1,9 +1,10 @@
+
 class GenerusModel {
   final String id;
   final String name;
   final String nisn;
   final String kelas;
-  final String level; // PAUD, SD, SMP, SMA
+  final String level;
   final String gender;
   final String parentName;
   final String parentPhone;
@@ -94,15 +95,30 @@ class KelasModel {
     required this.teacherName,
     required this.studentCount,
   });
+
+  KelasModel copyWith({
+    String? name,
+    String? level,
+    String? teacherName,
+    int? studentCount,
+  }) {
+    return KelasModel(
+      id: id,
+      name: name ?? this.name,
+      level: level ?? this.level,
+      teacherName: teacherName ?? this.teacherName,
+      studentCount: studentCount ?? this.studentCount,
+    );
+  }
 }
 
 class MateriModel {
   final String id;
   final String title;
-  final String category; // Tilawah, Hafalan, Doa, Pegon
+  final String category;
   final String summary;
   final String detail;
-  final int progress; // 0 - 100
+  final int progress;
 
   MateriModel({
     required this.id,
@@ -120,7 +136,7 @@ class PertemuanModel {
   final String date;
   final String time;
   final String location;
-  final String status; // Akan Datang, Selesai
+  final String status;
   final String description;
 
   PertemuanModel({
@@ -176,7 +192,7 @@ class PembinaanModel {
   final String category;
   final String notes;
   final String followupAction;
-  final String status; // Selesai, Dalam Proses
+  final String status;
 
   PembinaanModel({
     required this.id,

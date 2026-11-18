@@ -1,10 +1,11 @@
+
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
-import '../../data/dummy_data.dart';
 import '../../models/app_models.dart';
-import '../absensi/absensi_screen.dart';
+import '../../services/firestore_service.dart';
 import '../../shared/widgets/default_avatar.dart';
+import '../absensi/absensi_screen.dart';
 
 class PertemuanScreen extends StatefulWidget {
   const PertemuanScreen({super.key});
@@ -14,334 +15,406 @@ class PertemuanScreen extends StatefulWidget {
 }
 
 class _PertemuanScreenState extends State<PertemuanScreen> {
-  final DummyDataStore _dataStore = DummyDataStore.instance;
+  final FirestoreService _firestore = FirestoreService.instance;
   final TextEditingController _searchController = TextEditingController();
 
   String _selectedFilter = 'Semua';
   String _searchQuery = '';
 
-  final List<String> _filters = ['Semua', 'Akan Datang', 'Selesai'];
-
-  @override
-  void initState() {
-    super.initState();
-    _dataStore.addListener(_onDataChanged);
-  }
+  final List<String> _filters = [
+    'Semua',
+    'Akan Datang',
+    'Selesai',
+  ];
 
   @override
   void dispose() {
-    _dataStore.removeListener(_onDataChanged);
     _searchController.dispose();
     super.dispose();
   }
 
-  void _onDataChanged() {
-    if (mounted) setState(() {});
-  }
-
-  List<PertemuanModel> get _filteredPertemuan {
-    return _dataStore.pertemuanList.where((p) {
+  List<PertemuanModel> _filterPertemuan(List<PertemuanModel> data) {
+    return data.where((p) {
       final matchesFilter =
           _selectedFilter == 'Semua' || p.status == _selectedFilter;
-      final matchesQuery =
-          _searchQuery.isEmpty ||
-          p.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          p.location.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          p.description.toLowerCase().contains(_searchQuery.toLowerCase());
+
+      final query = _searchQuery.toLowerCase();
+
+      final matchesQuery = query.isEmpty ||
+          p.title.toLowerCase().contains(query) ||
+          p.location.toLowerCase().contains(query) ||
+          p.description.toLowerCase().contains(query);
+
       return matchesFilter && matchesQuery;
     }).toList();
   }
 
-  void _showAddPertemuanDialog() {
-    final titleCtrl = TextEditingController();
-    final dateCtrl = TextEditingController(text: 'Senin, 02 Nov 2026');
-    final timeCtrl = TextEditingController(text: '18:30 - 20:00 WIB');
-    final locCtrl = TextEditingController(text: 'Masjid Baitul Makmur');
-    final descCtrl = TextEditingController();
-    String status = 'Akan Datang';
-    final formKey = GlobalKey<FormState>();
+  // ================= TAMBAH PERTEMUAN =================
 
-    showModalBottomSheet(
+  Future<void> _showAddPertemuanDialog() async {
+    final result = await showModalBottomSheet<PertemuanModel>(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setModalState) => Padding(
-          padding: EdgeInsets.only(
-            left: 20,
-            right: 20,
-            top: 24,
-            bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
-          ),
-          child: Form(
-            key: formKey,
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Buat Pertemuan Baru',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primaryText,
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close_rounded),
-                        onPressed: () => Navigator.pop(ctx),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: titleCtrl,
-                    decoration: const InputDecoration(
-                      labelText: 'Nama / Judul Pertemuan',
-                    ),
-                    validator: (v) =>
-                        v == null || v.isEmpty ? 'Wajib diisi' : null,
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextFormField(
-                          controller: dateCtrl,
-                          decoration: const InputDecoration(
-                            labelText: 'Tanggal',
-                          ),
-                          validator: (v) =>
-                              v == null || v.isEmpty ? 'Wajib diisi' : null,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: TextFormField(
-                          controller: timeCtrl,
-                          decoration: const InputDecoration(labelText: 'Waktu'),
-                          validator: (v) =>
-                              v == null || v.isEmpty ? 'Wajib diisi' : null,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: locCtrl,
-                    decoration: const InputDecoration(
-                      labelText: 'Tempat / Lokasi',
-                    ),
-                    validator: (v) =>
-                        v == null || v.isEmpty ? 'Wajib diisi' : null,
-                  ),
-                  const SizedBox(height: 12),
-                  DropdownButtonFormField<String>(
-                    initialValue: status,
-                    decoration: const InputDecoration(
-                      labelText: 'Status Pertemuan',
-                    ),
-                    items: const [
-                      DropdownMenuItem(
-                        value: 'Akan Datang',
-                        child: Text('Akan Datang'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'Selesai',
-                        child: Text('Selesai'),
-                      ),
-                    ],
-                    onChanged: (v) => setModalState(() => status = v!),
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: descCtrl,
-                    maxLines: 2,
-                    decoration: const InputDecoration(
-                      labelText: 'Deskripsi Singkat',
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        if (formKey.currentState!.validate()) {
-                          final newP = PertemuanModel(
-                            id: 'P${DateTime.now().millisecondsSinceEpoch}',
-                            title: titleCtrl.text.trim(),
-                            date: dateCtrl.text.trim(),
-                            time: timeCtrl.text.trim(),
-                            location: locCtrl.text.trim(),
-                            status: status,
-                            description: descCtrl.text.trim().isEmpty
-                                ? 'Pembinaan generus terarah.'
-                                : descCtrl.text.trim(),
-                          );
-                          _dataStore.addPertemuan(newP);
-                          Navigator.pop(ctx);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                'Pertemuan berhasil disimpan secara lokal!',
-                              ),
-                              behavior: SnackBarBehavior.floating,
-                            ),
-                          );
-                        }
-                      },
-                      child: const Text('Simpan Pertemuan'),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
+      builder: (_) => const _PertemuanFormSheet(),
     );
+
+    if (!mounted || result == null) return;
+
+    try {
+      await _firestore.addPertemuan(result);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Pertemuan berhasil disimpan ke Firebase!'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Gagal menyimpan pertemuan: $e'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
+
+  // ================= HAPUS PERTEMUAN =================
+
+  Future<void> _confirmDeletePertemuan(PertemuanModel item) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Hapus Pertemuan?'),
+          content: Text(
+            'Apakah kamu yakin ingin menghapus pertemuan "${item.title}"? '
+            'Data yang sudah dihapus tidak dapat ditampilkan kembali.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: const Text('Batal'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: const Text('Hapus'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    try {
+      await _firestore.deletePertemuan(item.id);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Pertemuan berhasil dihapus.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Gagal menghapus pertemuan: $e'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  // ================= DETAIL PERTEMUAN =================
 
   void _showDetailPertemuan(PertemuanModel p) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.all(24),
+      builder: (ctx) {
+        return Padding(
+          padding: const EdgeInsets.all(24),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: p.status == 'Akan Datang'
+                            ? AppColors.lightGreenBadge
+                            : Colors.grey.shade200,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        p.status,
+                        style: TextStyle(
+                          color: p.status == 'Akan Datang'
+                              ? AppColors.primaryGreen
+                              : AppColors.secondaryText,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close_rounded),
+                      onPressed: () => Navigator.pop(ctx),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  p.title,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.primaryText,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                _detailRow(Icons.calendar_month_outlined, p.date),
+                const SizedBox(height: 8),
+                _detailRow(Icons.access_time_rounded, p.time),
+                const SizedBox(height: 8),
+                _detailRow(Icons.place_outlined, p.location),
+                const SizedBox(height: 14),
+                Text(
+                  p.description,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: AppColors.secondaryText,
+                    height: 1.4,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.how_to_reg_rounded),
+                    label: const Text('Buka Presensi Pertemuan Ini'),
+                    onPressed: () {
+                      Navigator.pop(ctx);
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => AbsensiScreen(
+                            preselectedMeetingId: p.id,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _detailRow(IconData icon, String value) {
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: AppColors.primaryGreen),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(
+              fontSize: 13,
+              color: AppColors.primaryText,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ================= KARTU PERTEMUAN =================
+
+  Widget _buildMeetingCard(PertemuanModel item) {
+    return GestureDetector(
+      onTap: () => _showDetailPertemuan(item),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 14),
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(22),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: p.status == 'Akan Datang'
-                        ? AppColors.lightGreenBadge
-                        : Colors.grey.shade200,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    p.status,
-                    style: TextStyle(
-                      color: p.status == 'Akan Datang'
-                          ? AppColors.primaryGreen
-                          : AppColors.secondaryText,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close_rounded),
-                  onPressed: () => Navigator.pop(ctx),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              p.title,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w900,
-                color: AppColors.primaryText,
-              ),
-            ),
-            const SizedBox(height: 14),
-            Row(
-              children: [
-                const Icon(
-                  Icons.calendar_month_outlined,
-                  size: 18,
-                  color: AppColors.primaryGreen,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  p.date,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: AppColors.primaryText,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                const Icon(
-                  Icons.access_time_rounded,
-                  size: 18,
-                  color: AppColors.primaryGreen,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  p.time,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: AppColors.primaryText,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                const Icon(
-                  Icons.place_outlined,
-                  size: 18,
-                  color: AppColors.primaryGreen,
-                ),
-                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    p.location,
+                    item.title,
                     style: const TextStyle(
-                      fontSize: 13,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
                       color: AppColors.primaryText,
                     ),
                   ),
                 ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
+                  decoration: BoxDecoration(
+                    color: item.status == 'Akan Datang'
+                        ? AppColors.lightGreenBadge
+                        : Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    item.status,
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: item.status == 'Akan Datang'
+                          ? AppColors.primaryGreen
+                          : AppColors.secondaryText,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 4),
+                PopupMenuButton<String>(
+                  tooltip: 'Pilihan pertemuan',
+                  icon: const Icon(
+                    Icons.more_vert_rounded,
+                    color: AppColors.secondaryText,
+                  ),
+                  onSelected: (value) {
+                    if (value == 'hapus') {
+                      _confirmDeletePertemuan(item);
+                    }
+                  },
+                  itemBuilder: (context) => const [
+                    PopupMenuItem<String>(
+                      value: 'hapus',
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.delete_outline_rounded,
+                            color: Colors.red,
+                          ),
+                          SizedBox(width: 8),
+                          Text(
+                            'Hapus Pertemuan',
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
-            const SizedBox(height: 14),
-            Text(
-              p.description,
-              style: const TextStyle(
-                fontSize: 14,
-                color: AppColors.secondaryText,
-                height: 1.4,
-              ),
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: ElevatedButton.icon(
-                icon: const Icon(Icons.how_to_reg_rounded),
-                label: const Text('Buka Presensi Pertemuan Ini'),
-                onPressed: () {
-                  Navigator.pop(ctx);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => AbsensiScreen(preselectedMeetingId: p.id),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                const Icon(
+                  Icons.calendar_today_rounded,
+                  size: 14,
+                  color: AppColors.secondaryText,
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    item.date,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.secondaryText,
                     ),
-                  );
-                },
+                  ),
+                ),
+                const Icon(
+                  Icons.access_time_rounded,
+                  size: 14,
+                  color: AppColors.secondaryText,
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    item.time,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.secondaryText,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                const Icon(
+                  Icons.place_outlined,
+                  size: 14,
+                  color: AppColors.secondaryText,
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    item.location,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.secondaryText,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              item.description,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 13,
+                color: AppColors.secondaryText,
+                height: 1.3,
               ),
             ),
           ],
@@ -350,15 +423,14 @@ class _PertemuanScreenState extends State<PertemuanScreen> {
     );
   }
 
+  // ================= TAMPILAN UTAMA =================
+
   @override
   Widget build(BuildContext context) {
-    final list = _filteredPertemuan;
-
     return Scaffold(
       backgroundColor: const Color(0xFFE8E8E8),
       body: Column(
         children: [
-          // Header curved container
           Container(
             padding: EdgeInsets.only(
               top: MediaQuery.of(context).padding.top + 8,
@@ -368,7 +440,9 @@ class _PertemuanScreenState extends State<PertemuanScreen> {
             ),
             decoration: const BoxDecoration(
               color: AppColors.primaryGreen,
-              borderRadius: BorderRadius.vertical(bottom: Radius.circular(32)),
+              borderRadius: BorderRadius.vertical(
+                bottom: Radius.circular(32),
+              ),
             ),
             child: Column(
               children: [
@@ -409,8 +483,6 @@ class _PertemuanScreenState extends State<PertemuanScreen> {
                   ],
                 ),
                 const SizedBox(height: 18),
-
-                // Search Bar
                 Container(
                   height: 46,
                   decoration: BoxDecoration(
@@ -425,18 +497,13 @@ class _PertemuanScreenState extends State<PertemuanScreen> {
                       Expanded(
                         child: TextField(
                           controller: _searchController,
-                          onChanged: (val) {
+                          onChanged: (value) {
                             setState(() {
-                              _searchQuery = val.trim();
+                              _searchQuery = value.trim();
                             });
                           },
                           decoration: const InputDecoration(
                             hintText: 'Search',
-                            hintStyle: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 14,
-                              fontStyle: FontStyle.italic,
-                            ),
                             border: InputBorder.none,
                             enabledBorder: InputBorder.none,
                             focusedBorder: InputBorder.none,
@@ -465,10 +532,9 @@ class _PertemuanScreenState extends State<PertemuanScreen> {
               ],
             ),
           ),
-
           const SizedBox(height: 14),
 
-          // Horizontal Filter Chips & Add Meeting Button
+          // FILTER DAN TOMBOL BUAT
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
@@ -477,35 +543,40 @@ class _PertemuanScreenState extends State<PertemuanScreen> {
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
-                      children: _filters.map((fil) {
-                        final isSelected = _selectedFilter == fil;
+                      children: _filters.map((filter) {
+                        final selected = _selectedFilter == filter;
+
                         return Padding(
                           padding: const EdgeInsets.only(right: 8),
                           child: GestureDetector(
-                            onTap: () => setState(() => _selectedFilter = fil),
+                            onTap: () {
+                              setState(() {
+                                _selectedFilter = filter;
+                              });
+                            },
                             child: Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 18,
                                 vertical: 8,
                               ),
                               decoration: BoxDecoration(
-                                color: isSelected
+                                color: selected
                                     ? AppColors.primaryGreen
                                     : Colors.white,
                                 borderRadius: BorderRadius.circular(24),
                                 border: Border.all(
-                                  color: isSelected
+                                  color: selected
                                       ? AppColors.primaryGreen
                                       : const Color(0xFF1B1B1B),
                                   width: 1.2,
                                 ),
                               ),
                               child: Text(
-                                fil,
+                                filter,
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.bold,
-                                  color: isSelected
+                                  color: selected
                                       ? Colors.white
                                       : const Color(0xFF1B1B1B),
                                 ),
@@ -517,6 +588,7 @@ class _PertemuanScreenState extends State<PertemuanScreen> {
                     ),
                   ),
                 ),
+                const SizedBox(width: 6),
                 GestureDetector(
                   onTap: _showAddPertemuanDialog,
                   child: Container(
@@ -551,181 +623,264 @@ class _PertemuanScreenState extends State<PertemuanScreen> {
 
           const SizedBox(height: 12),
 
-          // List of Pertemuan
+          // DATA FIRESTORE
           Expanded(
-            child: list.isEmpty
-                ? const Center(
+            child: StreamBuilder<List<PertemuanModel>>(
+              stream: _firestore.watchPertemuan(),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(24),
+                      child: Text(
+                        'Gagal memuat pertemuan. Periksa koneksi dan aturan Firestore.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: AppColors.secondaryText,
+                        ),
+                      ),
+                    ),
+                  );
+                }
+
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      color: AppColors.primaryGreen,
+                    ),
+                  );
+                }
+
+                final list = _filterPertemuan(snapshot.data ?? []);
+
+                if (list.isEmpty) {
+                  return const Center(
                     child: Text(
                       'Tidak ada jadwal pertemuan yang sesuai',
                       style: TextStyle(color: AppColors.secondaryText),
                     ),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 4,
-                    ),
-                    itemCount: list.length,
-                    itemBuilder: (ctx, index) {
-                      final item = list[index];
-                      // Show section header when status changes or on the first item
-                      final bool showHeader =
-                          index == 0 || list[index - 1].status != item.status;
+                  );
+                }
 
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (showHeader) ...[
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                top: 8,
-                                bottom: 8,
-                                left: 4,
-                              ),
-                              child: Text(
-                                item.status,
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w900,
-                                  color: AppColors.primaryText,
-                                ),
-                              ),
+                return ListView.builder(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 4,
+                  ),
+                  itemCount: list.length,
+                  itemBuilder: (context, index) {
+                    final item = list[index];
+
+                    final showHeader = index == 0 ||
+                        list[index - 1].status != item.status;
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (showHeader)
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              top: 8,
+                              bottom: 8,
+                              left: 4,
                             ),
-                          ],
-                          GestureDetector(
-                            onTap: () => _showDetailPertemuan(item),
-                            child: Container(
-                              margin: const EdgeInsets.only(bottom: 14),
-                              padding: const EdgeInsets.all(18),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(22),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.04),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 3),
-                                  ),
-                                ],
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          item.title,
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w800,
-                                            color: AppColors.primaryText,
-                                          ),
-                                        ),
-                                      ),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 3,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: item.status == 'Akan Datang'
-                                              ? AppColors.lightGreenBadge
-                                              : Colors.grey.shade200,
-                                          borderRadius: BorderRadius.circular(
-                                            10,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          item.status,
-                                          style: TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.bold,
-                                            color: item.status == 'Akan Datang'
-                                                ? AppColors.primaryGreen
-                                                : AppColors.secondaryText,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 10),
-                                  Row(
-                                    children: [
-                                      const Icon(
-                                        Icons.calendar_today_rounded,
-                                        size: 14,
-                                        color: AppColors.secondaryText,
-                                      ),
-                                      const SizedBox(width: 6),
-                                      Text(
-                                        item.date,
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          color: AppColors.secondaryText,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 14),
-                                      const Icon(
-                                        Icons.access_time_rounded,
-                                        size: 14,
-                                        color: AppColors.secondaryText,
-                                      ),
-                                      const SizedBox(width: 6),
-                                      Text(
-                                        item.time,
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          color: AppColors.secondaryText,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Row(
-                                    children: [
-                                      const Icon(
-                                        Icons.place_outlined,
-                                        size: 14,
-                                        color: AppColors.secondaryText,
-                                      ),
-                                      const SizedBox(width: 6),
-                                      Expanded(
-                                        child: Text(
-                                          item.location,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(
-                                            fontSize: 12,
-                                            color: AppColors.secondaryText,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    item.description,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      fontSize: 13,
-                                      color: AppColors.secondaryText,
-                                      height: 1.3,
-                                    ),
-                                  ),
-                                ],
+                            child: Text(
+                              item.status,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w900,
+                                color: AppColors.primaryText,
                               ),
                             ),
                           ),
-                        ],
-                      );
-                    },
-                  ),
+                        _buildMeetingCard(item),
+                      ],
+                    );
+                  },
+                );
+              },
+            ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ======================================================
+// FORM PERTEMUAN TERPISAH
+// ======================================================
+
+class _PertemuanFormSheet extends StatefulWidget {
+  const _PertemuanFormSheet();
+
+  @override
+  State<_PertemuanFormSheet> createState() =>
+      _PertemuanFormSheetState();
+}
+
+class _PertemuanFormSheetState extends State<_PertemuanFormSheet> {
+  final _formKey = GlobalKey<FormState>();
+
+  final _titleCtrl = TextEditingController();
+  final _dateCtrl = TextEditingController();
+  final _timeCtrl = TextEditingController();
+  final _locCtrl = TextEditingController();
+  final _descCtrl = TextEditingController();
+
+  String _status = 'Akan Datang';
+
+  @override
+  void dispose() {
+    _titleCtrl.dispose();
+    _dateCtrl.dispose();
+    _timeCtrl.dispose();
+    _locCtrl.dispose();
+    _descCtrl.dispose();
+    super.dispose();
+  }
+
+  void _savePertemuan() {
+    if (!_formKey.currentState!.validate()) return;
+
+    final pertemuan = PertemuanModel(
+      id: '',
+      title: _titleCtrl.text.trim(),
+      date: _dateCtrl.text.trim(),
+      time: _timeCtrl.text.trim(),
+      location: _locCtrl.text.trim(),
+      status: _status,
+      description: _descCtrl.text.trim().isEmpty
+          ? 'Pembinaan generus terarah.'
+          : _descCtrl.text.trim(),
+    );
+
+    Navigator.pop(context, pertemuan);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 20,
+        right: 20,
+        top: 24,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+      ),
+      child: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Buat Pertemuan Baru',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primaryText,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close_rounded),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _titleCtrl,
+                decoration: const InputDecoration(
+                  labelText: 'Nama / Judul Pertemuan',
+                ),
+                validator: (v) =>
+                    v == null || v.trim().isEmpty ? 'Wajib diisi' : null,
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _dateCtrl,
+                      decoration: const InputDecoration(
+                        labelText: 'Tanggal',
+                        hintText: 'Contoh: Senin, 02 Nov 2026',
+                      ),
+                      validator: (v) =>
+                          v == null || v.trim().isEmpty ? 'Wajib diisi' : null,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: TextFormField(
+                      controller: _timeCtrl,
+                      decoration: const InputDecoration(
+                        labelText: 'Waktu',
+                        hintText: '18:30 - 20:00 WIB',
+                      ),
+                      validator: (v) =>
+                          v == null || v.trim().isEmpty ? 'Wajib diisi' : null,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _locCtrl,
+                decoration: const InputDecoration(
+                  labelText: 'Tempat / Lokasi',
+                ),
+                validator: (v) =>
+                    v == null || v.trim().isEmpty ? 'Wajib diisi' : null,
+              ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                initialValue: _status,
+                decoration: const InputDecoration(
+                  labelText: 'Status Pertemuan',
+                ),
+                items: const [
+                  DropdownMenuItem(
+                    value: 'Akan Datang',
+                    child: Text('Akan Datang'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'Selesai',
+                    child: Text('Selesai'),
+                  ),
+                ],
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() {
+                      _status = value;
+                    });
+                  }
+                },
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _descCtrl,
+                maxLines: 2,
+                decoration: const InputDecoration(
+                  labelText: 'Deskripsi Singkat',
+                ),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: _savePertemuan,
+                  child: const Text('Simpan Pertemuan'),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

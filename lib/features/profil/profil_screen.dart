@@ -1,4 +1,6 @@
+
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../data/dummy_data.dart';
@@ -14,6 +16,7 @@ class ProfilScreen extends StatefulWidget {
 
 class _ProfilScreenState extends State<ProfilScreen> {
   final DummyDataStore _dataStore = DummyDataStore.instance;
+  bool _isLoggingOut = false;
 
   @override
   void initState() {
@@ -105,17 +108,19 @@ class _ProfilScreenState extends State<ProfilScreen> {
                   color: AppColors.badgeRed,
                 ),
                 title: const Text(
-                  'Logout Demo',
+                  'Logout',
                   style: TextStyle(
                     color: AppColors.badgeRed,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                subtitle: const Text('Keluar dari sesi demo aplikasi'),
-                onTap: () {
-                  Navigator.pop(ctx);
-                  _handleLogout();
-                },
+                subtitle: const Text('Keluar dari akun Firebase'),
+                onTap: _isLoggingOut
+                    ? null
+                    : () {
+                        Navigator.pop(ctx);
+                        _handleLogout();
+                      },
               ),
             ],
           ),
@@ -128,7 +133,9 @@ class _ProfilScreenState extends State<ProfilScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
         title: const Row(
           children: [
             Icon(Icons.logout_rounded, color: AppColors.badgeRed, size: 24),
@@ -140,7 +147,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
           ],
         ),
         content: const Text(
-          'Apakah Anda yakin ingin keluar dari akun demo SIAP-GENERUS?',
+          'Apakah Anda yakin ingin keluar dari akun SIAP-GENERUS?',
           style: TextStyle(color: AppColors.primaryText, fontSize: 14),
         ),
         actionsPadding: const EdgeInsets.symmetric(
@@ -177,15 +184,48 @@ class _ProfilScreenState extends State<ProfilScreen> {
       ),
     );
 
-    if (confirmed == true && mounted) {
+    if (confirmed != true || !mounted) return;
+
+    setState(() {
+      _isLoggingOut = true;
+    });
+
+    try {
+      await FirebaseAuth.instance.signOut();
+
+      if (!mounted) return;
+
       _dataStore.logout();
+
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => const LoginScreen()),
         (route) => false,
       );
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _isLoggingOut = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Logout gagal: ${e.message ?? e.code}'),
+          backgroundColor: AppColors.badgeRed,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } catch (_) {
+      if (!mounted) return;
+
+      setState(() {
+        _isLoggingOut = false;
+      });
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Berhasil keluar dari akun demo.'),
+          content: Text('Terjadi kesalahan saat logout.'),
+          backgroundColor: AppColors.badgeRed,
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -251,6 +291,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
 
   void _showChangePasswordDialog() {
     final passCtrl = TextEditingController();
+
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -270,7 +311,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
               Navigator.pop(ctx);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('Password berhasil disimulasikan!'),
+                  content: Text('Fitur ubah password belum diintegrasikan.'),
                 ),
               );
             },
@@ -282,6 +323,8 @@ class _ProfilScreenState extends State<ProfilScreen> {
   }
 
   Widget _buildProgressRow(String title, int percent) {
+    final safePercent = percent.clamp(0, 100);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -297,7 +340,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
               ),
             ),
             Text(
-              '$percent%',
+              '$safePercent%',
               style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w800,
@@ -310,7 +353,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
         ClipRRect(
           borderRadius: BorderRadius.circular(6),
           child: LinearProgressIndicator(
-            value: percent / 100,
+            value: safePercent / 100,
             minHeight: 8,
             backgroundColor: const Color(0xFFE5EDE8),
             valueColor: const AlwaysStoppedAnimation<Color>(
@@ -333,7 +376,6 @@ class _ProfilScreenState extends State<ProfilScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Top Header Curve Stack
                 Stack(
                   clipBehavior: Clip.none,
                   children: [
@@ -341,8 +383,6 @@ class _ProfilScreenState extends State<ProfilScreen> {
                       size: const Size(double.infinity, 190),
                       painter: _ProfilHeaderPainter(),
                     ),
-
-                    // Profile Header Card (Green Gradient)
                     Padding(
                       padding: const EdgeInsets.only(
                         top: 64,
@@ -353,7 +393,10 @@ class _ProfilScreenState extends State<ProfilScreen> {
                         padding: const EdgeInsets.all(18),
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
-                            colors: [Color(0xFF86BA93), Color(0xFF388E4A)],
+                            colors: [
+                              Color(0xFF86BA93),
+                              Color(0xFF388E4A),
+                            ],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
@@ -372,13 +415,14 @@ class _ProfilScreenState extends State<ProfilScreen> {
                         ),
                         child: Row(
                           children: [
-                            // Student Avatar
                             DefaultAvatar(
                               size: 66,
-                              border: Border.all(color: Colors.white, width: 2),
+                              border: Border.all(
+                                color: Colors.white,
+                                width: 2,
+                              ),
                             ),
                             const SizedBox(width: 16),
-                            // Details
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -423,10 +467,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 28),
-
-                // Section Title: "Progres Belajar"
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20),
                   child: Text(
@@ -438,10 +479,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 14),
-
-                // Large Progres Belajar Card
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Container(
@@ -476,14 +514,14 @@ class _ProfilScreenState extends State<ProfilScreen> {
                           'Aksara Pegon',
                           _dataStore.pegonProgress,
                         ),
-
-                        // Materi completion badge
                         Container(
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
                             color: const Color(0xFFF6F9F7),
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: const Color(0xFFE2EBE5)),
+                            border: Border.all(
+                              color: const Color(0xFFE2EBE5),
+                            ),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -519,7 +557,8 @@ class _ProfilScreenState extends State<ProfilScreen> {
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Text(
-                                  '${_dataStore.completedMaterialsCount} dari ${_dataStore.totalMaterialsCount}',
+                                  '${_dataStore.completedMaterialsCount} dari '
+                                  '${_dataStore.totalMaterialsCount}',
                                   style: const TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w800,
@@ -534,13 +573,10 @@ class _ProfilScreenState extends State<ProfilScreen> {
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 100),
               ],
             ),
           ),
-
-          // Floating Settings Button at bottom right
           Positioned(
             bottom: 24,
             right: 20,
@@ -577,7 +613,6 @@ class _ProfilScreenState extends State<ProfilScreen> {
 class _ProfilHeaderPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    // Gold Wave background accent
     final goldPaint = Paint()
       ..color = AppColors.accentGold
       ..style = PaintingStyle.fill;
@@ -595,7 +630,6 @@ class _ProfilHeaderPainter extends CustomPainter {
     goldPath.close();
     canvas.drawPath(goldPath, goldPaint);
 
-    // Green primary header
     final greenPaint = Paint()
       ..color = AppColors.primaryGreen
       ..style = PaintingStyle.fill;
