@@ -390,9 +390,48 @@ class FirestoreService {
     });
   }
 
-  Future<void> addPrestasi(PrestasiModel prestasi) async {
-    await _prestasiCollection.add({
-      'generusName': prestasi.generusName,
+    Future<void> addPrestasi(PrestasiModel prestasi) async {
+    final generusName = prestasi.generusName.trim();
+    final normalizedName = generusName.toLowerCase();
+
+    // Periksa apakah Generus sudah terdaftar
+    final generusSnapshot = await _generusCollection.get();
+
+    final generusExists = generusSnapshot.docs.any((doc) {
+      final existingName = (doc.data()['name'] ?? '')
+          .toString()
+          .trim()
+          .toLowerCase();
+
+      return existingName == normalizedName;
+    });
+
+    // Gunakan batch agar penambahan Generus (jika perlu)
+    // dan penyimpanan Prestasi dilakukan bersama.
+    final batch = _db.batch();
+
+    // Jika Generus belum terdaftar, buat data baru
+    if (!generusExists) {
+      final newGenerusRef = _generusCollection.doc();
+
+      batch.set(newGenerusRef, {
+        'name': generusName,
+        'nisn': '',
+        'kelas': '',
+        'level': '',
+        'gender': '',
+        'parentName': '',
+        'parentPhone': '',
+        'address': '',
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+    }
+
+    // Simpan data Prestasi
+    final newPrestasiRef = _prestasiCollection.doc();
+
+    batch.set(newPrestasiRef, {
+      'generusName': generusName,
       'title': prestasi.title,
       'category': prestasi.category,
       'level': prestasi.level,
@@ -400,19 +439,22 @@ class FirestoreService {
       'documentation': prestasi.documentation,
       'createdAt': FieldValue.serverTimestamp(),
     });
+
+    // Jalankan seluruh perubahan
+    await batch.commit();
   }
 
-  Future<void> updatePrestasi(PrestasiModel prestasi) async {
-    await _prestasiCollection.doc(prestasi.id).update({
-      'generusName': prestasi.generusName,
-      'title': prestasi.title,
-      'category': prestasi.category,
-      'level': prestasi.level,
-      'date': prestasi.date,
-      'documentation': prestasi.documentation,
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
-  }
+    Future<void> updatePrestasi(PrestasiModel prestasi) async {
+      await _prestasiCollection.doc(prestasi.id).update({
+        'generusName': prestasi.generusName,
+        'title': prestasi.title,
+        'category': prestasi.category,
+        'level': prestasi.level,
+        'date': prestasi.date,
+        'documentation': prestasi.documentation,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    }
 
   Future<void> deletePrestasi(String id) async {
     await _prestasiCollection.doc(id).delete();
@@ -467,5 +509,57 @@ class FirestoreService {
 
   Future<void> deletePembinaan(String id) async {
     await _pembinaanCollection.doc(id).delete();
+  }
+
+    Future<void> syncPrestasiToGenerus() async {
+    // Ambil seluruh data Prestasi
+    final prestasiSnapshot = await _prestasiCollection.get();
+
+    // Ambil seluruh data Generus
+    final generusSnapshot = await _generusCollection.get();
+
+    // Kumpulkan nama Generus yang sudah terdaftar
+    final existingNames = generusSnapshot.docs.map((doc) {
+      return (doc.data()['name'] ?? '')
+          .toString()
+          .trim()
+          .toLowerCase();
+    }).toSet();
+
+    final batch = _db.batch();
+    int addedCount = 0;
+
+    for (final doc in prestasiSnapshot.docs) {
+      final name = (doc.data()['generusName'] ?? '').toString().trim();
+      final normalizedName = name.toLowerCase();
+
+      // Abaikan nama kosong atau yang sudah terdaftar
+      if (name.isEmpty || existingNames.contains(normalizedName)) {
+        continue;
+      }
+
+      final newGenerusRef = _generusCollection.doc();
+
+      batch.set(newGenerusRef, {
+        'name': name,
+        'nisn': '',
+        'kelas': '',
+        'level': '',
+        'gender': '',
+        'parentName': '',
+        'parentPhone': '',
+        'address': '',
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
+      // Agar nama yang sama dari beberapa Prestasi tidak dibuat berulang
+      existingNames.add(normalizedName);
+      addedCount++;
+    }
+
+    // Simpan hanya jika ada Generus baru
+    if (addedCount > 0) {
+      await batch.commit();
+    }
   }
 }

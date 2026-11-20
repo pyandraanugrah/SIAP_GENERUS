@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../data/dummy_data.dart';
+import '../../services/firestore_service.dart';
+import '../../models/app_models.dart';
 import '../generus/generus_list_screen.dart';
 import '../absensi/absensi_screen.dart';
 import '../progress/progress_screen.dart';
@@ -21,6 +23,7 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   final DummyDataStore _dataStore = DummyDataStore.instance;
+  final FirestoreService _firestoreService = FirestoreService.instance;
 
   @override
   void initState() {
@@ -292,13 +295,40 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     children: [
                                       Row(
                                         children: [
-                                          Text(
-                                            '${_dataStore.totalGenerus}',
-                                            style: const TextStyle(
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.w900,
-                                              color: AppColors.primaryText,
-                                            ),
+                                          StreamBuilder<List<GenerusModel>>(
+                                            stream: _firestoreService.watchGenerus(),
+                                            builder: (context, snapshot) {
+                                              if (snapshot.hasError) {
+                                                return const Text(
+                                                  '-',
+                                                  style: TextStyle(
+                                                    fontSize: 20,
+                                                    fontWeight: FontWeight.w900,
+                                                    color: AppColors.primaryText,
+                                                  ),
+                                                );
+                                              }
+
+                                              if (!snapshot.hasData) {
+                                                return const SizedBox(
+                                                  width: 24,
+                                                  height: 24,
+                                                  child: CircularProgressIndicator(
+                                                    strokeWidth: 2,
+                                                    color: AppColors.primaryGreen,
+                                                  ),
+                                                );
+                                              }
+
+                                              return Text(
+                                                '${snapshot.data!.length}',
+                                                style: const TextStyle(
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.w900,
+                                                  color: AppColors.primaryText,
+                                                ),
+                                              );
+                                            },
                                           ),
                                           const SizedBox(width: 6),
                                           Container(
