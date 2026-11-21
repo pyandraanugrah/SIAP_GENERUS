@@ -62,8 +62,22 @@ Aplikasi administrasi dan pembinaan generus berbasis Flutter (Android/Multiplatf
    flutter run -d windows
    ```
 
+
+
 4. **Jalankan pengujian dan analisis kode:**
    ```bash
    flutter analyze
    flutter test
    ```
+
+
+## Pembaruan Fitur
+
+- Sinkronisasi identitas Pengajar pada halaman Beranda dan Profil.
+- Pemilihan foto profil melalui galeri perangkat.
+- Penyimpanan foto profil secara lokal.
+- Pengambilan jumlah kelas aktif secara realtime dari Firebase.
+- Penyederhanaan menu Pengaturan Akun.
+- Penambahan fungsi logout akun demo.
+- Mempertahankan fitur Progres Belajar Santri.
+- Penyesuaian Firebase Security Rules untuk pengembangan.
