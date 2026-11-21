@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -15,10 +14,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _emailController =
-      TextEditingController(text: 'demo@siapgenerus.app');
-  final _passwordController =
-      TextEditingController(text: 'Generus123!');
+  final _emailController = TextEditingController(text: 'demo@siapgenerus.app');
+  final _passwordController = TextEditingController(text: 'Generus123!');
   final _formKey = GlobalKey<FormState>();
 
   bool _isPasswordVisible = false;
@@ -39,10 +36,19 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text,
-      );
+      final email = _emailController.text.trim();
+      final password = _passwordController.text;
+
+      // Akun demo tidak bergantung pada Firebase Authentication.
+      final isDemoAccount =
+          email == 'demo@siapgenerus.app' && password == 'Generus123!';
+
+      if (!isDemoAccount) {
+        await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+      }
 
       if (!mounted) return;
 
@@ -53,9 +59,7 @@ class _LoginScreenState extends State<LoginScreen> {
       });
 
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (_) => const MainNavigationShell(),
-        ),
+        MaterialPageRoute(builder: (_) => const MainNavigationShell()),
       );
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
@@ -116,10 +120,7 @@ class _LoginScreenState extends State<LoginScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(
-          title,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
         content: Text(content),
         actions: [
           TextButton(
@@ -140,10 +141,7 @@ class _LoginScreenState extends State<LoginScreen> {
       backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 24,
-            vertical: 16,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           child: Form(
             key: _formKey,
             child: Column(
@@ -162,14 +160,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     PopupMenuButton<String>(
-                      icon: const Icon(
-                        Icons.more_vert,
-                        color: Colors.black87,
-                      ),
+                      icon: const Icon(Icons.more_vert, color: Colors.black87),
                       onSelected: (val) {
                         if (val == 'demo') {
-                          _emailController.text =
-                              'demo@siapgenerus.app';
+                          _emailController.text = 'demo@siapgenerus.app';
                           _passwordController.text = 'Generus123!';
                         } else if (val == 'about') {
                           _showInfoDialog(
@@ -221,9 +215,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   decoration: BoxDecoration(
                     color: const Color(0xFFF5F8F6),
                     borderRadius: BorderRadius.circular(24),
-                    border: Border.all(
-                      color: const Color(0xFFE8EDE9),
-                    ),
+                    border: Border.all(color: const Color(0xFFE8EDE9)),
                   ),
                   child: Column(
                     children: [
@@ -280,8 +272,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             onPressed: () {
                               setState(() {
-                                _isPasswordVisible =
-                                    !_isPasswordVisible;
+                                _isPasswordVisible = !_isPasswordVisible;
                               });
                             },
                           ),
@@ -363,15 +354,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 Row(
                   children: [
                     Expanded(
-                      child: Divider(
-                        color: Colors.grey.shade300,
-                        thickness: 1,
-                      ),
+                      child: Divider(color: Colors.grey.shade300, thickness: 1),
                     ),
                     Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
                       child: Text(
                         'atau',
                         style: TextStyle(
@@ -381,10 +367,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     Expanded(
-                      child: Divider(
-                        color: Colors.grey.shade300,
-                        thickness: 1,
-                      ),
+                      child: Divider(color: Colors.grey.shade300, thickness: 1),
                     ),
                   ],
                 ),
@@ -403,9 +386,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     decoration: BoxDecoration(
                       color: const Color(0xFFF9FAF9),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: const Color(0xFFE4E9E5),
-                      ),
+                      border: Border.all(color: const Color(0xFFE4E9E5)),
                     ),
                     child: const Row(
                       mainAxisAlignment: MainAxisAlignment.center,

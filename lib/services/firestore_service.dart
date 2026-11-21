@@ -130,6 +130,7 @@ class FirestoreService {
           level: data['level'] ?? '',
           teacherName: data['teacherName'] ?? '',
           studentCount: (data['studentCount'] as num?)?.toInt() ?? 0,
+          status: data['status'] ?? 'Aktif',
         );
       }).toList();
     });
@@ -141,6 +142,7 @@ class FirestoreService {
       'level': kelas.level,
       'teacherName': kelas.teacherName,
       'studentCount': kelas.studentCount,
+      'status': kelas.status,
       'createdAt': FieldValue.serverTimestamp(),
     });
   }
@@ -151,6 +153,7 @@ class FirestoreService {
       'level': kelas.level,
       'teacherName': kelas.teacherName,
       'studentCount': kelas.studentCount,
+      'status': kelas.status,
       'updatedAt': FieldValue.serverTimestamp(),
     });
   }

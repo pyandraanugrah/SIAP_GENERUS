@@ -12,6 +12,7 @@ import '../pengajar/pengajar_list_screen.dart';
 import '../kelas/kelas_list_screen.dart';
 import '../pembinaan/pembinaan_screen.dart';
 import '../../shared/widgets/default_avatar.dart';
+import '../../shared/utils/avatar_picker_helper.dart';
 
 class DashboardScreen extends StatefulWidget {
   final Function(int)? onNavigateTab;
@@ -177,11 +178,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     child: Row(
                       children: [
                         // Avatar
-                        DefaultAvatar(
-                          size: 58,
-                          border: Border.all(
-                            color: AppColors.border,
-                            width: 1.5,
+                        GestureDetector(
+                          onTap: () =>
+                              AvatarPickerHelper.pickAndSaveAvatar(context),
+                          child: Tooltip(
+                            message: 'Ganti Foto Profil',
+                            child: DefaultAvatar(
+                              size: 58,
+                              imagePath: _dataStore.avatarPath,
+                              border: Border.all(
+                                color: AppColors.border,
+                                width: 1.5,
+                              ),
+                            ),
                           ),
                         ),
                         const SizedBox(width: 14),
@@ -409,13 +418,48 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text(
-                                        '${_dataStore.totalKelas}',
-                                        style: const TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.w900,
-                                          color: Colors.white,
-                                        ),
+                                      StreamBuilder<List<KelasModel>>(
+                                        stream: _firestoreService.watchKelas(),
+                                        builder: (context, snapshot) {
+                                          if (snapshot.hasError) {
+                                            return const Text(
+                                              '-',
+                                              style: TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.w900,
+                                                color: Colors.white,
+                                              ),
+                                            );
+                                          }
+
+                                          if (!snapshot.hasData) {
+                                            return const SizedBox(
+                                              width: 20,
+                                              height: 20,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                                color: Colors.white,
+                                              ),
+                                            );
+                                          }
+
+                                          final activeClasses =
+                                              snapshot.data!.where((k) {
+                                            final status =
+                                                k.status.toLowerCase().trim();
+                                            return status != 'tidak aktif' &&
+                                                status != 'nonaktif';
+                                          }).toList();
+
+                                          return Text(
+                                            '${activeClasses.length}',
+                                            style: const TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.w900,
+                                              color: Colors.white,
+                                            ),
+                                          );
+                                        },
                                       ),
                                       const Icon(
                                         Icons.calendar_today_rounded,

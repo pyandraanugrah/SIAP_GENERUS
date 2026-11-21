@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/app_models.dart';
 
@@ -6,6 +7,7 @@ class DummyDataStore extends ChangeNotifier {
   static final DummyDataStore instance = DummyDataStore._internal();
   DummyDataStore._internal() {
     _initData();
+    loadProfileFromStorage();
   }
 
   // Demo Auth Session
@@ -21,9 +23,46 @@ class DummyDataStore extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Teacher Profile (Dashboard)
+  // Teacher Profile (Account Demo)
   String teacherName = 'Muhammad Heisal Alfarizi';
   String teacherRole = 'Pengajar';
+  String? avatarPath;
+
+  static const String _kTeacherNameKey = 'demo_teacher_name';
+  static const String _kAvatarPathKey = 'demo_avatar_path';
+
+  Future<void> loadProfileFromStorage() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final savedName = prefs.getString(_kTeacherNameKey);
+      final savedAvatar = prefs.getString(_kAvatarPathKey);
+      if (savedName != null && savedName.trim().isNotEmpty) {
+        teacherName = savedName.trim();
+      }
+      if (savedAvatar != null && savedAvatar.trim().isNotEmpty) {
+        avatarPath = savedAvatar.trim();
+      }
+      notifyListeners();
+    } catch (_) {}
+  }
+
+  Future<void> updateTeacherProfile({required String name}) async {
+    teacherName = name.trim();
+    notifyListeners();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_kTeacherNameKey, teacherName);
+    } catch (_) {}
+  }
+
+  Future<void> updateAvatarPath(String path) async {
+    avatarPath = path;
+    notifyListeners();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_kAvatarPathKey, path);
+    } catch (_) {}
+  }
 
   // Student Profile (Profil Tab)
   String studentName = 'Muhammad Dimaz Albintani';
@@ -40,7 +79,6 @@ class DummyDataStore extends ChangeNotifier {
   // Stats
   int totalGenerus = 250;
   int totalPengajar = 12;
-  int totalKelas = 12;
   int attendanceRate = 83;
 
   // Lists

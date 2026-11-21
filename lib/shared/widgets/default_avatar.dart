@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 
 class DefaultAvatar extends StatelessWidget {
@@ -5,7 +6,12 @@ class DefaultAvatar extends StatelessWidget {
   final String? imagePath;
   final BoxBorder? border;
 
-  const DefaultAvatar({super.key, this.size = 58, this.imagePath, this.border});
+  const DefaultAvatar({
+    super.key,
+    this.size = 58,
+    this.imagePath,
+    this.border,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -18,15 +24,35 @@ class DefaultAvatar extends StatelessWidget {
         border: border,
       ),
       child: ClipOval(
-        child: imagePath != null && imagePath!.isNotEmpty
-            ? Image.asset(
-                imagePath!,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) =>
-                    _buildSilhouette(),
-              )
-            : _buildSilhouette(),
+        child: _buildAvatarImage(),
       ),
+    );
+  }
+
+  Widget _buildAvatarImage() {
+    if (imagePath == null || imagePath!.isEmpty) {
+      return _buildSilhouette();
+    }
+
+    try {
+      final file = File(imagePath!);
+      if (file.existsSync()) {
+        return Image.file(
+          file,
+          fit: BoxFit.cover,
+          width: size,
+          height: size,
+          errorBuilder: (context, error, stackTrace) => _buildSilhouette(),
+        );
+      }
+    } catch (_) {}
+
+    return Image.asset(
+      imagePath!,
+      fit: BoxFit.cover,
+      width: size,
+      height: size,
+      errorBuilder: (context, error, stackTrace) => _buildSilhouette(),
     );
   }
 

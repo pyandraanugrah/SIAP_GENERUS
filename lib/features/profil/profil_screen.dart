@@ -1,10 +1,10 @@
-
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../data/dummy_data.dart';
 import '../../shared/widgets/default_avatar.dart';
+import '../../shared/utils/avatar_picker_helper.dart';
 import '../auth/login_screen.dart';
 
 class ProfilScreen extends StatefulWidget {
@@ -49,7 +49,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'Pengaturan Akun Demo',
+                'Pengaturan Akun',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -63,7 +63,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
                   color: AppColors.primaryGreen,
                 ),
                 title: const Text('Edit Profil'),
-                subtitle: const Text('Perbarui nama dan info profil lokal'),
+                subtitle: const Text('Perbarui nama dan info profil'),
                 trailing: const Icon(Icons.chevron_right_rounded),
                 onTap: () {
                   Navigator.pop(ctx);
@@ -76,29 +76,11 @@ class _ProfilScreenState extends State<ProfilScreen> {
                   color: AppColors.primaryGreen,
                 ),
                 title: const Text('Ubah Password'),
-                subtitle: const Text('Simulasi ganti password akun'),
+                subtitle: const Text('Perbarui kata sandi akun'),
                 trailing: const Icon(Icons.chevron_right_rounded),
                 onTap: () {
                   Navigator.pop(ctx);
                   _showChangePasswordDialog();
-                },
-              ),
-              ListTile(
-                leading: const Icon(
-                  Icons.photo_camera_outlined,
-                  color: AppColors.primaryGreen,
-                ),
-                title: const Text('Ganti Foto Profil'),
-                subtitle: const Text('Simulasi pemilihan avatar'),
-                trailing: const Icon(Icons.chevron_right_rounded),
-                onTap: () {
-                  Navigator.pop(ctx);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Simulasi: Foto profil lokal diperbarui!'),
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
                 },
               ),
               const Divider(),
@@ -108,13 +90,13 @@ class _ProfilScreenState extends State<ProfilScreen> {
                   color: AppColors.badgeRed,
                 ),
                 title: const Text(
-                  'Logout',
+                  'Keluar',
                   style: TextStyle(
                     color: AppColors.badgeRed,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                subtitle: const Text('Keluar dari akun Firebase'),
+                subtitle: const Text('Keluar dari sesi akun'),
                 onTap: _isLoggingOut
                     ? null
                     : () {
@@ -133,9 +115,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Row(
           children: [
             Icon(Icons.logout_rounded, color: AppColors.badgeRed, size: 24),
@@ -191,75 +171,67 @@ class _ProfilScreenState extends State<ProfilScreen> {
     });
 
     try {
-      await FirebaseAuth.instance.signOut();
+      final auth = FirebaseAuth.instance;
+      if (auth.currentUser != null) {
+        await auth.signOut();
+      }
+    } catch (_) {}
 
-      if (!mounted) return;
+    if (!mounted) return;
 
-      _dataStore.logout();
+    _dataStore.logout();
 
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-        (route) => false,
-      );
-    } on FirebaseAuthException catch (e) {
-      if (!mounted) return;
-
-      setState(() {
-        _isLoggingOut = false;
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Logout gagal: ${e.message ?? e.code}'),
-          backgroundColor: AppColors.badgeRed,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    } catch (_) {
-      if (!mounted) return;
-
-      setState(() {
-        _isLoggingOut = false;
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Terjadi kesalahan saat logout.'),
-          backgroundColor: AppColors.badgeRed,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    }
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const LoginScreen()),
+      (route) => false,
+    );
   }
 
   void _showEditProfilDialog() {
-    final nameCtrl = TextEditingController(text: _dataStore.studentName);
-    final nisnCtrl = TextEditingController(text: _dataStore.studentNisn);
-    final kelasCtrl = TextEditingController(text: _dataStore.studentKelas);
+    final nameCtrl = TextEditingController(text: _dataStore.teacherName);
 
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text(
-          'Edit Profil Demo',
+          'Edit Profil',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextField(
               controller: nameCtrl,
-              decoration: const InputDecoration(labelText: 'Nama Lengkap'),
+              decoration: const InputDecoration(
+                labelText: 'Nama Lengkap',
+                border: OutlineInputBorder(),
+              ),
             ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: kelasCtrl,
-              decoration: const InputDecoration(labelText: 'Kelas'),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: nisnCtrl,
-              decoration: const InputDecoration(labelText: 'NISN'),
+            const SizedBox(height: 16),
+            OutlinedButton.icon(
+              onPressed: () {
+                Navigator.pop(ctx);
+                AvatarPickerHelper.pickAndSaveAvatar(context);
+              },
+              icon: const Icon(
+                Icons.photo_camera_outlined,
+                color: AppColors.primaryGreen,
+              ),
+              label: const Text(
+                'Ganti Foto Profil',
+                style: TextStyle(
+                  color: AppColors.primaryGreen,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: AppColors.primaryGreen),
+                minimumSize: const Size(double.infinity, 44),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
             ),
           ],
         ),
@@ -270,15 +242,16 @@ class _ProfilScreenState extends State<ProfilScreen> {
           ),
           ElevatedButton(
             onPressed: () {
-              setState(() {
-                _dataStore.studentName = nameCtrl.text.trim();
-                _dataStore.studentKelas = kelasCtrl.text.trim();
-                _dataStore.studentNisn = nisnCtrl.text.trim();
-              });
+              final newName = nameCtrl.text.trim();
+              if (newName.isNotEmpty) {
+                _dataStore.updateTeacherProfile(name: newName);
+              }
               Navigator.pop(ctx);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('Profil berhasil diperbarui secara lokal!'),
+                  content: Text('Profil berhasil diperbarui.'),
+                  backgroundColor: AppColors.primaryGreen,
+                  behavior: SnackBarBehavior.floating,
                 ),
               );
             },
@@ -290,16 +263,47 @@ class _ProfilScreenState extends State<ProfilScreen> {
   }
 
   void _showChangePasswordDialog() {
-    final passCtrl = TextEditingController();
+    final currentPassCtrl = TextEditingController();
+    final newPassCtrl = TextEditingController();
+    final confirmPassCtrl = TextEditingController();
 
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Ubah Password Demo'),
-        content: TextField(
-          controller: passCtrl,
-          obscureText: true,
-          decoration: const InputDecoration(labelText: 'Password Baru'),
+        title: const Text(
+          'Ubah Password',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: currentPassCtrl,
+              obscureText: true,
+              decoration: const InputDecoration(
+                labelText: 'Password Saat Ini',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: newPassCtrl,
+              obscureText: true,
+              decoration: const InputDecoration(
+                labelText: 'Password Baru',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: confirmPassCtrl,
+              obscureText: true,
+              decoration: const InputDecoration(
+                labelText: 'Konfirmasi Password Baru',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ],
         ),
         actions: [
           TextButton(
@@ -308,10 +312,32 @@ class _ProfilScreenState extends State<ProfilScreen> {
           ),
           ElevatedButton(
             onPressed: () {
+              if (newPassCtrl.text.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Password baru tidak boleh kosong.'),
+                    backgroundColor: AppColors.badgeRed,
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+                return;
+              }
+              if (newPassCtrl.text != confirmPassCtrl.text) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Konfirmasi password tidak cocok.'),
+                    backgroundColor: AppColors.badgeRed,
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+                return;
+              }
               Navigator.pop(ctx);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('Fitur ubah password belum diintegrasikan.'),
+                  content: Text('Password demo diperbarui untuk sesi ini.'),
+                  backgroundColor: AppColors.primaryGreen,
+                  behavior: SnackBarBehavior.floating,
                 ),
               );
             },
@@ -393,10 +419,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
                         padding: const EdgeInsets.all(18),
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
-                            colors: [
-                              Color(0xFF86BA93),
-                              Color(0xFF388E4A),
-                            ],
+                            colors: [Color(0xFF86BA93), Color(0xFF388E4A)],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
@@ -415,11 +438,19 @@ class _ProfilScreenState extends State<ProfilScreen> {
                         ),
                         child: Row(
                           children: [
-                            DefaultAvatar(
-                              size: 66,
-                              border: Border.all(
-                                color: Colors.white,
-                                width: 2,
+                            GestureDetector(
+                              onTap: () =>
+                                  AvatarPickerHelper.pickAndSaveAvatar(context),
+                              child: Tooltip(
+                                message: 'Ganti Foto Profil',
+                                child: DefaultAvatar(
+                                  size: 66,
+                                  imagePath: _dataStore.avatarPath,
+                                  border: Border.all(
+                                    color: Colors.white,
+                                    width: 2,
+                                  ),
+                                ),
                               ),
                             ),
                             const SizedBox(width: 16),
@@ -428,7 +459,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    _dataStore.studentName,
+                                    _dataStore.teacherName,
                                     style: const TextStyle(
                                       fontSize: 15,
                                       fontWeight: FontWeight.w900,
@@ -437,23 +468,23 @@ class _ProfilScreenState extends State<ProfilScreen> {
                                   ),
                                   const SizedBox(height: 3),
                                   Text(
-                                    _dataStore.studentRole,
+                                    _dataStore.teacherRole,
                                     style: const TextStyle(
                                       fontSize: 13,
                                       fontWeight: FontWeight.w600,
                                       color: Colors.black87,
                                     ),
                                   ),
-                                  Text(
-                                    _dataStore.studentKelas,
-                                    style: const TextStyle(
+                                  const Text(
+                                    'Akun Pengajar',
+                                    style: TextStyle(
                                       fontSize: 13,
                                       color: Colors.black87,
                                     ),
                                   ),
-                                  Text(
-                                    'NISN : ${_dataStore.studentNisn}',
-                                    style: const TextStyle(
+                                  const Text(
+                                    'Status: Aktif',
+                                    style: TextStyle(
                                       fontSize: 13,
                                       color: Colors.black87,
                                     ),
@@ -519,9 +550,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
                           decoration: BoxDecoration(
                             color: const Color(0xFFF6F9F7),
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: const Color(0xFFE2EBE5),
-                            ),
+                            border: Border.all(color: const Color(0xFFE2EBE5)),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,

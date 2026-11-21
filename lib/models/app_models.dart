@@ -87,6 +87,7 @@ class KelasModel {
   final String level;
   final String teacherName;
   final int studentCount;
+  final String status;
 
   KelasModel({
     required this.id,
@@ -94,6 +95,7 @@ class KelasModel {
     required this.level,
     required this.teacherName,
     required this.studentCount,
+    this.status = 'Aktif',
   });
 
   KelasModel copyWith({
@@ -101,6 +103,7 @@ class KelasModel {
     String? level,
     String? teacherName,
     int? studentCount,
+    String? status,
   }) {
     return KelasModel(
       id: id,
@@ -108,6 +111,7 @@ class KelasModel {
       level: level ?? this.level,
       teacherName: teacherName ?? this.teacherName,
       studentCount: studentCount ?? this.studentCount,
+      status: status ?? this.status,
     );
   }
 }
